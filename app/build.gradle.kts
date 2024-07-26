@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.hilt.android)
     id ("kotlin-kapt")
     id("kotlin-parcelize")
@@ -93,4 +93,5 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.4.2")
     implementation("com.google.accompanist:accompanist-swiperefresh:0.35.1-alpha")
     implementation("com.google.accompanist:accompanist-placeholder-material:0.24.3-alpha")
+    implementation("androidx.compose.material:material:1.3.0")
 }
