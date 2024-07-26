@@ -98,7 +98,10 @@ fun NoticeListScreen(mainViewModel: MainViewModel = hiltViewModel()) {
                 is Resource.Success -> {
                     Log.i("NoticeListScreen", "Inside Resource.Success Block, Class Name:" + noticesState.javaClass.simpleName)
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items((noticesState as Resource.Success<List<Notice>>).data) { notice ->
+                        val filteredNotices = (noticesState as Resource.Success<List<Notice>>).data.filter {
+                            it.title.contains(searchQuery, true)
+                        }
+                        items(filteredNotices) { notice ->
                             NoticeItem(notice)
                         }
                     }
@@ -160,7 +163,7 @@ fun NoticeItem(notice: Notice) {
 @Composable
 fun ShimmerEffect() {
     Column {
-        repeat(5) {
+        repeat(10) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
