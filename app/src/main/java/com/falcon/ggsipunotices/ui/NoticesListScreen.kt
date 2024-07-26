@@ -1,6 +1,8 @@
 package com.falcon.ggsipunotices.ui
 
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -123,42 +125,6 @@ fun NoticeListScreen(mainViewModel: MainViewModel = hiltViewModel()) {
     }
 }
 
-
-@Composable
-fun NoticeItem(notice: Notice) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .placeholder(visible = false)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(notice.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(notice.date, color = Color.Gray)
-            }
-            Row {
-                IconButton(onClick = { /* Handle Download */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Download,
-                        contentDescription = "Download",
-                        tint = Color.Blue
-                    )
-                }
-                IconButton(onClick = { /* Handle Share */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = "Share",
-                        tint = Color.Blue
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun ShimmerEffect() {
