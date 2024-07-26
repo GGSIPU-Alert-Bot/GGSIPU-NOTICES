@@ -21,7 +21,7 @@ class MainViewModel @Inject constructor(private val noticeRepository: NoticeRepo
         fetchNotices()
     }
 
-    private fun fetchNotices() {
+    internal fun fetchNotices() {
         viewModelScope.launch {
             _notices.value = Resource.Loading
             try {

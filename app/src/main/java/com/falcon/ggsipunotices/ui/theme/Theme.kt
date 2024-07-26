@@ -35,9 +35,9 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun GGSIPUNOTICESTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // TODO (HANDLE)
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -46,7 +46,7 @@ fun GGSIPUNOTICESTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme // TODO (HANDLE DARK THEME)
+        darkTheme -> LightColorScheme // TODO (HANDLE DARK THEME)
         else -> LightColorScheme
     }
 

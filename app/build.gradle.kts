@@ -90,4 +90,7 @@ dependencies {
     implementation(libs.lottie.compose)
     // Navigation compose
     implementation(libs.androidx.navigation.compose)
+    implementation("androidx.compose.foundation:foundation:1.4.2")
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.35.1-alpha")
+    implementation("com.google.accompanist:accompanist-placeholder-material:0.24.3-alpha")
 }
