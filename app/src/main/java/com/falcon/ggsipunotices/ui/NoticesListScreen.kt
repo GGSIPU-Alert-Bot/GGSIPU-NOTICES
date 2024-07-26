@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -54,7 +55,6 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 @Composable
 fun NoticeListScreen(mainViewModel: MainViewModel = hiltViewModel()) {
     val noticesState by mainViewModel.notices.collectAsState()
-
     Column {
         TopAppBar(
             title = {
@@ -64,9 +64,7 @@ fun NoticeListScreen(mainViewModel: MainViewModel = hiltViewModel()) {
                     overflow = TextOverflow.Ellipsis
                 )
             },
-            colors = TopAppBarDefaults.smallTopAppBarColors(
-
-            )
+            colors = TopAppBarDefaults.smallTopAppBarColors()
         )
         var searchQuery by remember { mutableStateOf("") }
         OutlinedTextField(
@@ -77,13 +75,17 @@ fun NoticeListScreen(mainViewModel: MainViewModel = hiltViewModel()) {
                 .fillMaxWidth()
                 .padding(8.dp)
         )
-
-        val isRefreshing by remember { mutableStateOf(false) }
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing),
+        val pullRefreshState = rememberPullRefreshState(
+            refreshing = noticesState is Resource.Loading,
             onRefresh = {
                 mainViewModel.fetchNotices()
             }
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pullRefresh(pullRefreshState)
         ) {
             when (noticesState) {
                 is Resource.Loading -> {
@@ -104,9 +106,15 @@ fun NoticeListScreen(mainViewModel: MainViewModel = hiltViewModel()) {
                     )
                 }
             }
+            PullRefreshIndicator(
+                refreshing = noticesState is Resource.Loading,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 }
+
 
 @Composable
 fun NoticeItem(notice: Notice) {
