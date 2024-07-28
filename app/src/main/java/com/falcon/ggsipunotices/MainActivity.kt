@@ -33,7 +33,7 @@ import kotlin.math.absoluteValue
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         setContent {
             GGSIPUNOTICESTheme {
                 NoticeListScreen(
