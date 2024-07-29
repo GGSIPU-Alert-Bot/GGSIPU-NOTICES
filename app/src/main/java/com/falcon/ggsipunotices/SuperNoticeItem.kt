@@ -30,7 +30,7 @@ fun SuperNoticeItem(
     val currentItem by rememberUpdatedState(notice)
 
     // Change currentItem to notice, if issue persists // TODO
-    val fileTitle = currentItem.title.plus(".pdf") // For download / share purposes
+    val fileTitle = removeNonAlphaNumeric(currentItem.title.toString()).plus(".pdf") // For download / share purposes
     val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileTitle)
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
@@ -71,4 +71,9 @@ fun SuperNoticeItem(
                 notice = notice
             )
         })
+}
+
+fun removeNonAlphaNumeric(input: String): String {
+    val regex = "[^a-zA-Z0-9]".toRegex()
+    return input.replace(regex, "")
 }
