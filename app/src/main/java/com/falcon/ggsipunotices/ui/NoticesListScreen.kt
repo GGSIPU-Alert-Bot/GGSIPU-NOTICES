@@ -94,7 +94,7 @@ fun NoticeListScreen(
                     Log.i("NoticeListScreen", "Inside Resource.Success Block, Class Name:" + noticesState.javaClass.simpleName)
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         val filteredNotices = (noticesState as Resource.Success<List<Notice>>).data.filter {
-                            it.title.contains(searchQuery, true)
+                            it.title?.contains(searchQuery, true) ?: false
                         }
                         items(filteredNotices) { notice ->
                             NoticeItem(
@@ -150,7 +150,7 @@ private fun MainScreenHeader() {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp, 25.dp, 16.dp, 0.dp)
+            .padding(12.dp, 24.dp, 0.dp, 0.dp)
     ) {
         Text(
             text = "GGSIPU NOTICES",

@@ -1,9 +1,11 @@
 package com.falcon.ggsipunotices.model
 
 data class Notice(
-    val id: Int,
-    val date: String,
-    val title: String,
-    val url: String,
-    val createdAt: String
+    val id: Int? = null,
+    val date: String? = null,
+    val title: String? = null,
+    val url: String? = null,
+    val createdAt: String? = null,
+
+    val iconURL: String? = null
 )

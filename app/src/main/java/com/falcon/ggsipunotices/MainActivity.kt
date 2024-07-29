@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.FileProvider
+import com.falcon.ggsipunotices.ui.NoticeItemPreview
 import com.falcon.ggsipunotices.ui.NoticeListScreen
 import com.falcon.ggsipunotices.ui.theme.GGSIPUNOTICESTheme
 import dagger.hilt.android.AndroidEntryPoint
