@@ -58,11 +58,14 @@ class MainActivity : ComponentActivity() {
     }
     // Request code for selecting a PDF document.
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    fun startDownloading(fileURL: String, titleAndFileName: String) {
+    fun startDownloading(fileURL: String?, titleAndFileName: String) {
         val fileURL = "https://github.com/labmember003/usar_data/raw/master/YEAR_1/Sem1/EngineeringMechanics/paper/MinorExam.pdf" // TODO: Remove This Line
         val activity = this
         try {
-            if (fileURL.isNotEmpty()) {
+            if (fileURL == null) {
+                Toast.makeText(this, "INVALID URL DETECTED", Toast.LENGTH_SHORT).show()
+                return
+            } else if (fileURL.isNotEmpty()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     activity.registerReceiver(
                         attachmentDownloadCompleteReceive,
@@ -94,11 +97,13 @@ class MainActivity : ComponentActivity() {
                 ).show()
                 val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
                 manager.enqueue(request)
+            } else {
+                Toast.makeText(this, "INVALID URL DETECTED", Toast.LENGTH_SHORT).show()
             }
-        } catch (e: IllegalStateException) {
+        } catch (e: Exception) {
             Toast.makeText(
                 activity,
-                "Please insert an SD card to download file",
+                e.message.toString(),
                 Toast.LENGTH_SHORT
             ).show()
         }

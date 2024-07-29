@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.falcon.ggsipunotices.R
+import com.falcon.ggsipunotices.SuperNoticeItem
 import com.falcon.ggsipunotices.model.Notice
 import com.falcon.ggsipunotices.utils.Resource
 import com.google.accompanist.placeholder.PlaceholderHighlight
@@ -52,7 +53,7 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun NoticeListScreen(
-    startDownloading: (String, String) -> Unit,
+    startDownloading: (String?, String) -> Unit,
     openFile: (File) -> Unit,
     shareFile: (String) -> Unit
 ) {
@@ -97,8 +98,8 @@ fun NoticeListScreen(
                             it.title?.contains(searchQuery, true) ?: false
                         }
                         items(filteredNotices) { notice ->
-                            NoticeItem(
-                                notice,
+                            SuperNoticeItem(
+                                notice = notice,
                                 startDownloading = startDownloading,
                                 openFile = openFile,
                                 shareFile = shareFile
