@@ -36,31 +36,27 @@ fun SuperNoticeItem(
         confirmValueChange = {
             when(it) {
                 StartToEnd -> {
-                    // CurrentItem // Download
-
+                    // CurrentItem // Share
+                    Toast.makeText(context, "StartToEnd Swiped", Toast.LENGTH_SHORT).show()
                     if (!file.exists()) {
                         startDownloading(notice.url, fileTitle)
                     }
                     shareFile(fileTitle)
-
-                    Toast.makeText(context, "StartToEnd Swiped", Toast.LENGTH_SHORT).show()
                 }
                 EndToStart -> {
-                    // CurrentItem // Share
-
+                    // CurrentItem // Download
+                    Toast.makeText(context, "EndToStart Swiped", Toast.LENGTH_SHORT).show()
                     if (!file.exists()) {
                         startDownloading(notice.url, fileTitle)
                     }
                     openFile(file)
-
-                    Toast.makeText(context, "EndToStart Swiped", Toast.LENGTH_SHORT).show()
                 }
                 Settled -> return@rememberSwipeToDismissBoxState false
             }
-            return@rememberSwipeToDismissBoxState true
+            return@rememberSwipeToDismissBoxState false
         },
         // positional threshold of 25%
-        positionalThreshold = { it * .25f }
+        positionalThreshold = { it * .30f }
     )
     SwipeToDismissBox(
         state = dismissState,

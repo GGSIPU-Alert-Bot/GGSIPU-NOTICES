@@ -106,27 +106,32 @@ class MainActivity : ComponentActivity() {
                 e.message.toString(),
                 Toast.LENGTH_SHORT
             ).show()
+            return
         }
     }
 
     private fun openFile(file: File) {
-        if (file.exists()) {
-            val myIntent = Intent(Intent.ACTION_VIEW)
-            val fileProviderUri =
-                FileProvider.getUriForFile(this, this.application.packageName + ".provider", file)
-            myIntent.data = fileProviderUri
-            myIntent.setDataAndType(fileProviderUri, "application/pdf")
-            myIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            val j = Intent.createChooser(myIntent, "Choose an application to open with:")
-            startActivity(j)
-        } else {
-            Toast.makeText(
-                baseContext,
-                "File not found",
-                Toast.LENGTH_LONG
-            ).show()
-        }
+//        file.toURI()
+        openDownloadedAttachment(this, Uri.fromFile(file), "application/pdf")
+
+
+//        if (file.exists()) {
+//            val myIntent = Intent(Intent.ACTION_VIEW)
+//            val fileProviderUri =
+//                FileProvider.getUriForFile(this, this.application.packageName + ".provider", file)
+//            myIntent.data = fileProviderUri
+//            myIntent.setDataAndType(fileProviderUri, "application/pdf")
+//            myIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMFfaISSION)
+//            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            val j = Intent.createChooser(myIntent, "Choose an application to open with:")
+//            startActivity(j)
+//        } else {
+//            Toast.makeText(
+//                baseContext,
+//                "File not found",
+//                Toast.LENGTH_LONG
+//            ).show()
+//        }
     }
 
     private var attachmentDownloadCompleteReceive: BroadcastReceiver = object : BroadcastReceiver() {
