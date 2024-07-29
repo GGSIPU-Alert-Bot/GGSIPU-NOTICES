@@ -1,8 +1,10 @@
 package com.falcon.ggsipunotices.ui
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,7 +17,9 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -29,8 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.falcon.ggsipunotices.R
 import com.falcon.ggsipunotices.model.Notice
@@ -51,21 +59,16 @@ fun NoticeListScreen(
     val mainViewModel: MainViewModel = hiltViewModel()
     val noticesState by mainViewModel.notices.collectAsState()
     Column {
-        TopAppBar(
-            title = {
-                Text(
-                    text = stringResource(id = R.string.app_name),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
-            colors = TopAppBarDefaults.smallTopAppBarColors()
-        )
+        MainScreenHeader()
         var searchQuery by remember { mutableStateOf("") }
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             label = { Text("Search") },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Black
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
@@ -137,5 +140,25 @@ fun ShimmerEffect() {
                     )
             ) {}
         }
+    }
+}
+
+@Composable
+private fun MainScreenHeader() {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp, 25.dp, 16.dp, 0.dp)
+    ) {
+        Text(
+            text = "GGSIPU NOTICES",
+            fontSize = 24.sp,
+            fontFamily = FontFamily(Font(R.font.nunito_bold_1)),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.SemiBold
+            )
+        )
     }
 }

@@ -33,21 +33,13 @@ import kotlin.math.absoluteValue
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
+//        enableEdgeToEdge() // Removed in order to bring status bar
         setContent {
-            GGSIPUNOTICESTheme {
-                NoticeListScreen(
-                    startDownloading = ::startDownloading,
-                    openFile = ::openFile,
-                    shareFile = ::shareFile
-                )
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Greeting(
-//                        name = "Android",
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//                }
-            }
+            NoticeListScreen(
+                startDownloading = ::startDownloading,
+                openFile = ::openFile,
+                shareFile = ::shareFile
+            )
         }
     }
 
