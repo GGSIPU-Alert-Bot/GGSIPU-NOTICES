@@ -175,7 +175,10 @@ class MainActivity : ComponentActivity() {
         Log.i("2- openDownloadedAttachment1, attachmentUri:", attachmentUri?.toString() ?: "null")
         if (attachmentUri != null) {
             Log.i("3- openDownloadedAttachment1, attachmentUri:", attachmentUri.toString())
-            if (ContentResolver.SCHEME_FILE == attachmentUri.scheme) {
+            if (ContentResolver.SCHEME_FILE == attachmentUri.scheme) { // Checks if attachmentUri is file URI or content URI
+                // We need to give content URI to Intent always, because:
+                // Direct access to file URIs is restricted in modern Android versions due to security reasons. Apps are encouraged to use content URIs instead.
+                Log.i("3.5- openDownloadedAttachment1, attachmentUri:", attachmentUri.toString())
                 val file = File(attachmentUri.path)
                 attachmentUri =
                     FileProvider.getUriForFile(this, this.application.packageName +".provider", file)
@@ -183,7 +186,9 @@ class MainActivity : ComponentActivity() {
             Log.i("4- openDownloadedAttachment1, attachmentUri:", attachmentUri?.toString() ?: "null")
             val openAttachmentIntent = Intent(Intent.ACTION_VIEW)
             openAttachmentIntent.setDataAndType(attachmentUri, attachmentMimeType)
-            openAttachmentIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            openAttachmentIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            openAttachmentIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            openAttachmentIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             try {
                 context.startActivity(openAttachmentIntent)
             } catch (e: ActivityNotFoundException) {
@@ -196,7 +201,9 @@ class MainActivity : ComponentActivity() {
         if (file.exists()) {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "application/pdf"
-            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             val photoURI = FileProvider.getUriForFile(
                 this,
                 this.applicationContext.packageName + ".provider",
