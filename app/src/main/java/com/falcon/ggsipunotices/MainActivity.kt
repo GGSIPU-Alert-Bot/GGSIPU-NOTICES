@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -169,16 +170,20 @@ class MainActivity : ComponentActivity() {
         attachmentUri: Uri,
         attachmentMimeType: String
     ) {
+        Log.i("1- openDownloadedAttachment1, attachmentUri:", attachmentUri.toString())
         var attachmentUri: Uri? = attachmentUri
+        Log.i("2- openDownloadedAttachment1, attachmentUri:", attachmentUri?.toString() ?: "null")
         if (attachmentUri != null) {
+            Log.i("3- openDownloadedAttachment1, attachmentUri:", attachmentUri.toString())
             if (ContentResolver.SCHEME_FILE == attachmentUri.scheme) {
                 val file = File(attachmentUri.path)
                 attachmentUri =
                     FileProvider.getUriForFile(this, this.application.packageName +".provider", file)
             }
+            Log.i("4- openDownloadedAttachment1, attachmentUri:", attachmentUri?.toString() ?: "null")
             val openAttachmentIntent = Intent(Intent.ACTION_VIEW)
             openAttachmentIntent.setDataAndType(attachmentUri, attachmentMimeType)
-            openAttachmentIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            openAttachmentIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             try {
                 context.startActivity(openAttachmentIntent)
             } catch (e: ActivityNotFoundException) {
@@ -191,7 +196,7 @@ class MainActivity : ComponentActivity() {
         if (file.exists()) {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "application/pdf"
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             val photoURI = FileProvider.getUriForFile(
                 this,
                 this.applicationContext.packageName + ".provider",
