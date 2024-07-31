@@ -1,6 +1,8 @@
 package com.falcon.ggsipunotices
 
+import android.content.Context
 import android.os.Environment
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SwipeToDismissBox
@@ -22,13 +24,13 @@ import java.io.File
 fun SuperNoticeItem(
     notice: Notice,
     modifier: Modifier = Modifier,
-    startDownloading: (String?, String) -> Unit,
-    openFile: (File) -> Unit,
-    shareFile: (String) -> Unit
+    startDownloading: (Context, String?, String) -> Unit,
+    openFile: (Context, String) -> Unit,
+    shareFile: (Context, String) -> Unit,
+    checkFileExists: (Context, String) -> Boolean
 ) {
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(notice)
-
     // Change currentItem to notice, if issue persists // TODO
     val fileTitle = removeNonAlphaNumeric(currentItem.title.toString()).plus(".pdf") // For download / share purposes
     val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileTitle)
@@ -38,18 +40,28 @@ fun SuperNoticeItem(
                 StartToEnd -> {
                     // CurrentItem // Share
                     Toast.makeText(context, "StartToEnd Swiped", Toast.LENGTH_SHORT).show()
-                    if (!file.exists()) {
-                        startDownloading(notice.url, fileTitle)
+
+                    if (checkFileExists(context, fileTitle)) {
+                        Log.i("SNI", "File Exists")
+                        shareFile(context, fileTitle)
+                    } else {
+                        Log.i("SNI", "File NOT Exists")
+                        startDownloading(context, notice.url, fileTitle)
+
                     }
-                    shareFile(fileTitle)
                 }
                 EndToStart -> {
                     // CurrentItem // Download
                     Toast.makeText(context, "EndToStart Swiped", Toast.LENGTH_SHORT).show()
-                    if (!file.exists()) {
-                        startDownloading(notice.url, fileTitle)
+
+                    if (checkFileExists(context, removeNonAlphaNumeric(currentItem.title.toString()))) {
+                        Log.i("SNI", "File Exists")
+                        openFile(context, fileTitle)
+                    } else {
+                        Log.i("SNI", "File NOT Exists")
+                        startDownloading(context, notice.url, fileTitle)
+
                     }
-                    openFile(file)
                 }
                 Settled -> return@rememberSwipeToDismissBoxState false
             }
