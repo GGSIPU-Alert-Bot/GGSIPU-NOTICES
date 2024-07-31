@@ -96,4 +96,6 @@ dependencies {
     implementation("androidx.compose.material:material:1.3.0")
 
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    implementation ("com.itextpdf:itextg:5.5.10") // Use the version appropriate for your project
 }
