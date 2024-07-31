@@ -139,7 +139,7 @@ fun downloadPdfNotifination(
                         val localUri = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
                         Log.i("STATUS_SUCCESSFUL 1", "STATUS_SUCCESSFUL")
                         Log.i("STATUS_SUCCESSFUL 2", localUri)
-                        Toast.makeText(context, localUri, Toast.LENGTH_SHORT).show()
+                        // Toast.makeText(context, localUri, Toast.LENGTH_SHORT).show() // Why this shitty Toast appearing again nd again ?????????
                         notificationManager.cancel(notificationId)
                     }
                     DownloadManager.STATUS_FAILED -> {
@@ -217,7 +217,7 @@ private fun showDownloadNotification(
                 notificationManager.notify(notificationId, builder.build())
             } else {
                 // Permission denied, handle accordingly (e.g., show a message)
-                Toast.makeText(activity, "Notification permission denied", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(activity, "Notification permission denied", Toast.LENGTH_SHORT).show()
             }
         }
 
