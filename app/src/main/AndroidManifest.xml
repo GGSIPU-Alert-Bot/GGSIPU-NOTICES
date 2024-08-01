@@ -25,6 +25,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GGSIPUNOTICES"
         android:windowSoftInputMode="adjustResize"
+        android:usesCleartextTraffic="true"
         tools:targetApi="35">
 
         <activity

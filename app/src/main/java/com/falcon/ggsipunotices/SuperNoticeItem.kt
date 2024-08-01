@@ -38,7 +38,9 @@ fun SuperNoticeItem(
         context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
         fileTitle
     )
-    val scope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope(
+
+    )
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
             when(it) {

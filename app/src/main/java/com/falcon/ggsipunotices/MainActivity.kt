@@ -27,9 +27,16 @@ import androidx.core.content.getSystemService
 import com.falcon.ggsipunotices.ui.NoticeListScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.FileOutputStream
+import java.io.InputStream
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -38,7 +45,7 @@ class MainActivity : ComponentActivity() {
 //        enableEdgeToEdge() // Removed in order to bring status bar
         setContent {
             NoticeListScreen(
-                startDownloading = ::downloadPdfNotifination,
+                startDownloading = ::downloadPdfNotification,
                 openFile = ::openFile,
                 shareFile = ::shareFile,
                 activity = this
@@ -95,8 +102,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@SuppressLint("CoroutineCreationDuringComposition", "Range")
-fun downloadPdfNotifination(
+
+
+fun downloadPdfNotification(
     title: String,
     context: Context,
     pdfUrl: String?,
@@ -104,16 +112,90 @@ fun downloadPdfNotifination(
     scope: CoroutineScope,
     activity: ComponentActivity?,
 ) {
-    val pdfUrl = "https://github.com/labmember003/usar_data/raw/master/YEAR_1/Sem1/EngineeringMechanics/paper/MinorExam.pdf" // TODO: Remove This Line
-
+    Log.i("DPN", pdfUrl.toString())
+//    val pdfUrl = "https://github.com/labmember003/usar_data/raw/master/YEAR_1/Sem1/EngineeringMechanics/paper/MinorExam.pdf" // TODO: Remove This Line
     if (pdfUrl == null) {
         Toast.makeText(context, "Invalid URL", Toast.LENGTH_SHORT).show()
         return
     }
+
+
+
+    scope.launch {
+        withContext(Dispatchers.IO) {
+            val notificationManager = NotificationManagerCompat.from(context)
+            createNotificationChannel(context)
+
+            try {
+                val client = OkHttpClient()
+                val request = Request.Builder().url(pdfUrl).build()
+                val response = client.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    response.body.let { body ->
+                        val inputStream = body.byteStream()
+                        val pdfBuffer = inputStream.readBytes()
+                        savePdfBuffer(context, title, pdfBuffer)
+                        notificationManager.cancel(notificationId)
+                    }
+                } else {
+                    Toast.makeText(context, "1:"+response.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "2:"+response.toString(), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
+                    notificationManager.cancel(notificationId)
+                }
+            } catch (e: Exception) {
+                Log.e("DPN - 1", e.toString())
+                e.printStackTrace()
+                Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
+                notificationManager.cancel(notificationId)
+            }
+        }
+    }
+}
+
+private fun savePdfBuffer(context: Context, title: String, pdfBuffer: ByteArray) {
+    val downloadsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+    val pdfFile = File(downloadsDir, title)
+    try {
+        FileOutputStream(pdfFile).use { fos ->
+            fos.write(pdfBuffer)
+        }
+        Log.i("PDF_SAVE", "PDF saved to ${pdfFile.absolutePath}")
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Log.e("PDF_SAVE", "Failed to save PDF")
+    }
+}
+
+
+@SuppressLint("CoroutineCreationDuringComposition", "Range")
+fun downloadPdfNotifination2(
+    title: String,
+    context: Context,
+    pdfUrl: String?,
+    notificationId: Int,
+    scope: CoroutineScope,
+    activity: ComponentActivity?,
+) {
+    Log.i("DPN", pdfUrl.toString())
+
+//    val pdfUrl = "https://github.com/labmember003/usar_data/raw/master/YEAR_1/Sem1/EngineeringMechanics/paper/MinorExam.pdf" // TODO: Remove This Line
+//    val pdfUrl = "https://maven.apache.org/archives/maven-1.x/maven.pdf"
+//    val pdfUrl = "https://doc-04-3s-prod-02-apps-viewer.googleusercontent.com/viewer2/prod-02/pdf/tijr3fkphpaituvt589k0jte2n1tuqg7/uv6sel00v99kk0ul6126e4upnvh277e1/1722534075000/3/*/APznzaZgS90a_sWqqp4mjI2dF6OvnlFLgOle3IqLpiJn0rI-Pw1iWTakJKz2TFJKqe95poc63zhwgSf4PGwzYj3zLbIINfjdwMoTAdhWrtM9GlGAbE2PYFAHL35dIm20zCDHqgp8UO2ANJebjJLoHRmXmY-Vifgy8kThILyD6UyN3DhtSmDqsYS_Exkgxx5vrkqvl4hi9AoENX2r5HGudlj_wPte-Gt9WH6fk9c4OhZ9hmW6VqYHk4VxA5QVD5iYtBNaHoSIRb4ynzqv0Pg0voV6vEV89HoaJySOrlrY8j91IS3iZzicr5zpamrhdMPB1UrRzGbK-2cpsJvA7U8AA3k7qvr9z8APTxd8dUpimAoLW2Zdy_P_BWkkhJtEv2x_pLmSr5O7jfLenXcaF8Lf9YyBDy2rzxFBwA==?authuser"
+//    val pdfUrl = "http://www.ipu.ac.in/Pubinfo2024/seatmspk25272410a.pdf"
+    if (pdfUrl == null) {
+        Toast.makeText(context, "Invalid URL", Toast.LENGTH_SHORT).show()
+        return
+    }
+
+    // Encode the URL to handle special characters
+    val encodedUrl = Uri.encode(pdfUrl, "@#&=*+-_.,:!?()/~'%")
+
     val downloadManager = context.getSystemService<DownloadManager>()!!
-    val uri = Uri.parse(pdfUrl)
+    val uri = Uri.parse(encodedUrl)
     val request = DownloadManager.Request(uri)
-        .setTitle("Sample PDF")
+        .setTitle(title)
         .setDescription("Downloading")
         .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
         .setDestinationInExternalFilesDir(
@@ -124,11 +206,9 @@ fun downloadPdfNotifination(
     val downloadId = downloadManager.enqueue(request)
     val query = DownloadManager.Query().setFilterById(downloadId)
 
-
     val notificationManager = NotificationManagerCompat.from(context)
 
     scope.launch {
-
         createNotificationChannel(context)
         while (true) {
             val cursor = downloadManager.query(query)
@@ -141,6 +221,7 @@ fun downloadPdfNotifination(
                         Log.i("STATUS_SUCCESSFUL 2", localUri)
                         // Toast.makeText(context, localUri, Toast.LENGTH_SHORT).show() // Why this shitty Toast appearing again nd again ?????????
                         notificationManager.cancel(notificationId)
+                        break
                     }
                     DownloadManager.STATUS_FAILED -> {
                         // Download failed
@@ -171,6 +252,7 @@ fun downloadPdfNotifination(
         }
     }
 }
+
 
 private fun createNotificationChannel(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
