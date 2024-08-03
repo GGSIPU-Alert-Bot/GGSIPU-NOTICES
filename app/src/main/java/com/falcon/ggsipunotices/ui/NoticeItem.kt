@@ -1,6 +1,7 @@
 package com.falcon.ggsipunotices.ui
 
 import android.os.Environment
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +32,8 @@ import coil.compose.AsyncImage
 import com.falcon.ggsipunotices.R
 import com.falcon.ggsipunotices.model.Notice
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -44,6 +47,7 @@ fun NoticeItemPreview() {
 fun NoticeItem(
     notice: Notice
 ) {
+    val formatedDate = notice.date?.let { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it) }?.let { SimpleDateFormat("MMM-dd", Locale.getDefault()).format(it) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -81,12 +85,14 @@ fun NoticeItem(
             horizontalAlignment = Alignment.Start
         ) {
             androidx.compose.material.Text(
-                text = notice.title ?: "UNKNOW TITLE",
+                text = notice.title ?: "UNKNOWN TITLE",
                 fontSize = 16.sp,
                 fontFamily = FontFamily(Font(R.font.nunito_bold_1)),
             )
+            Log.i("NoticeItem - date", "NoticeItem: ${notice.date}")
+            Log.i("NoticeItem - created At", "NoticeItem: ${notice.createdAt}")
             androidx.compose.material.Text(
-                text = notice.createdAt ?: "NA",
+                text = formatedDate ?: notice.date ?: notice.createdAt ?: "UNKNOWN DATE",
                 fontSize = 16.sp,
                 fontFamily = FontFamily(Font(R.font.nunito_light_1)),
             )
