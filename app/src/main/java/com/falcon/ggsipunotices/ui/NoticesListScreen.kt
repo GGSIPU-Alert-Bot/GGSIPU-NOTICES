@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -68,8 +69,11 @@ fun NoticeListScreen(
             label = { Text("Search") },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Black,
-                unfocusedBorderColor = Color.Black
+                unfocusedBorderColor = Color.Black,
+                focusedLabelColor = Color.Black,
+                cursorColor = Color.Black
             ),
+            shape = RoundedCornerShape(10.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)

@@ -52,7 +52,7 @@ fun NoticeItem(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = colorResource(id = R.color.white))
-            .padding(8.dp, 8.dp, 0.dp, 0.dp)
+            .padding(8.dp, 8.dp, 8.dp, 0.dp)
             .clickable {
                 // TODO: Open file
             },
