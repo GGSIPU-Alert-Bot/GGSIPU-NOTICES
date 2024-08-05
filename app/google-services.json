@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "343641047539",
+    "project_id": "ipu-notices-push-noti",
+    "storage_bucket": "ipu-notices-push-noti.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343641047539:android:0d12d63aa42c5845c1d286",
+        "android_client_info": {
+          "package_name": "com.falcon.ggsipunotices"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtdZjM-UWS2VvUaH317chEILRlbJ7E_pM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

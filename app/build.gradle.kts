@@ -6,6 +6,7 @@ plugins {
     id ("kotlin-kapt")
     id("kotlin-parcelize")
     alias(libs.plugins.kotlin.serialization)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -98,5 +99,17 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     implementation ("com.itextpdf:itextg:5.5.10") // Use the version appropriate for your project
+
+    // OSS Licences
     implementation (libs.play.services.oss.licenses)
+
+    // Firebase FCM
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+
+    // Moshi
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.moshi.adapters)
+    implementation(libs.moshi.converter)
 }
