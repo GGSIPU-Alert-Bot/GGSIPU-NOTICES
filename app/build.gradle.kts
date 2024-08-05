@@ -98,4 +98,5 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     implementation ("com.itextpdf:itextg:5.5.10") // Use the version appropriate for your project
+    implementation (libs.play.services.oss.licenses)
 }

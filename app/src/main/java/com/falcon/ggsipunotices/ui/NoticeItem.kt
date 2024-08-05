@@ -47,7 +47,12 @@ fun NoticeItemPreview() {
 fun NoticeItem(
     notice: Notice
 ) {
-    val formatedDate = notice.date?.let { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it) }?.let { SimpleDateFormat("MMM-dd", Locale.getDefault()).format(it) }
+    val formatedDate = try {
+        notice.date?.let { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it) }?.let { SimpleDateFormat("MMM-dd", Locale.getDefault()).format(it) }
+    } catch (e: Exception) {
+        Log.i("Error NoticeItem:", e.message.toString())
+        null
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()

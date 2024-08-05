@@ -3,6 +3,8 @@ package com.falcon.ggsipunotices.ui
 import android.content.Context
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,15 +13,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -29,10 +34,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -47,21 +54,24 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NoticeListScreen(
     startDownloading: (String, Context, String?, Int, CoroutineScope, ComponentActivity?) -> Unit,
     openFile: (Context, File) -> Unit,
     shareFile: (String, File) -> Unit,
-    activity: ComponentActivity?
+    activity: ComponentActivity?,
+    modalSheetState: ModalBottomSheetState
 ) {
+    val scope = rememberCoroutineScope()
     val mainViewModel: MainViewModel = hiltViewModel()
     val noticesState by mainViewModel.notices.collectAsState()
     Column {
-        MainScreenHeader()
+        MainScreenHeader(scope, modalSheetState)
         var searchQuery by remember { mutableStateOf("") }
         OutlinedTextField(
             value = searchQuery,
@@ -149,14 +159,18 @@ fun ShimmerEffect() {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun MainScreenHeader() {
+private fun MainScreenHeader(
+    scope: CoroutineScope,
+    modalSheetState: ModalBottomSheetState,
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp, 24.dp, 0.dp, 0.dp)
+            .padding(12.dp, 24.dp, 8.dp, 0.dp)
     ) {
         Text(
             text = "GGSIPU NOTICES",
@@ -165,6 +179,17 @@ private fun MainScreenHeader() {
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.SemiBold
             )
+        )
+        Image(
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = "Menu Icon",
+            modifier = Modifier
+                .size(26.dp)
+                .clickable {
+                    scope.launch {
+                        modalSheetState.show()
+                    }
+                }
         )
     }
 }

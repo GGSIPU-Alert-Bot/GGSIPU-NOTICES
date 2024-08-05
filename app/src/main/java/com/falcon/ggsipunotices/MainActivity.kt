@@ -19,16 +19,49 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.getSystemService
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.falcon.ggsipunotices.settings.SettingsScreen
 import com.falcon.ggsipunotices.ui.NoticeListScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,19 +69,128 @@ import java.io.File
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.FileOutputStream
-import java.io.InputStream
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge() // Removed in order to bring status bar
         setContent {
-            NoticeListScreen(
-                startDownloading = ::downloadPdfNotification,
-                openFile = ::openFile,
-                shareFile = ::shareFile,
-                activity = this
+            val navController = rememberNavController()
+            val modalSheetState = rememberModalBottomSheetState(
+                initialValue = ModalBottomSheetValue.Hidden,
+                confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
+                skipHalfExpanded = true
+            )
+            val context = LocalContext.current
+            val preferencesList = listOf("All", "High Priority")
+            NavHost(navController = navController, startDestination = "main_screen") {
+                composable("main_screen") {
+                    ModalBottomSheetLayout(
+                        sheetState = modalSheetState,
+                        sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+                        sheetContent = {
+                            MainScreenBottomSheetContent(modalSheetState, navController)
+                        }
+                    ) {
+                        NoticeListScreen(
+                            startDownloading = ::downloadPdfNotification,
+                            openFile = ::openFile,
+                            shareFile = ::shareFile,
+                            activity = this@MainActivity,
+                            modalSheetState = modalSheetState
+                        )
+                    }
+                }
+                composable("settings") {
+                    SettingsScreen(preferenceList = preferencesList) {
+                        navController.popBackStack()
+                    }
+                }
+            }
+
+        }
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    fun MainScreenBottomSheetContent(
+        modalSheetState: ModalBottomSheetState,
+        navController: NavHostController
+    ) {
+        DrawerContent(navController, modalSheetState)
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    fun DrawerContent(navController: NavHostController, modalSheetState: ModalBottomSheetState) {
+        val scope = rememberCoroutineScope()
+        Column(
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+                ,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Menu",
+                    style = androidx.compose.material.MaterialTheme.typography.subtitle1,
+                    fontSize = 20.sp
+                )
+                androidx.compose.material.Icon(
+                    Icons.Filled.Close,
+                    contentDescription = "Close",
+                    modifier = Modifier
+                        .clickable {
+                            scope.launch { modalSheetState.hide() }
+                        }
+                )
+            }
+            NavDrawerContent("Settings", R.drawable.baseline_settings_24) {
+                navController.navigate("settings")
+            }
+            Spacer(modifier = Modifier.height(2.dp))
+            NavDrawerContent("Result", R.drawable.ic_baseline_result_right_alt_24) {
+                navController.navigate("result")
+            }
+        }
+
+    }
+
+    @Composable
+    fun NavDrawerContent(contentName: String, imageID: Int, onClick: () -> Unit) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    onClick()
+                }
+                .padding(12.dp)
+        ) {
+            Image(
+                painter = painterResource(id = imageID),
+                contentDescription = "" ,
+                modifier = Modifier
+                    .size(30.dp)
+            )
+            Spacer(
+                modifier = Modifier
+                    .size(10.dp)
+            )
+            Text(
+                text = contentName,
+                style = androidx.compose.material.MaterialTheme.typography.body1,
+                color = Color.Unspecified
             )
         }
     }
@@ -147,8 +289,10 @@ fun downloadPdfNotification(
             } catch (e: Exception) {
                 Log.e("DPN - 1", e.toString())
                 e.printStackTrace()
-                Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
                 notificationManager.cancel(notificationId)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
