@@ -70,6 +70,15 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.FileOutputStream
 
+import android.view.View
+import android.webkit.WebViewClient
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.accompanist.web.WebView
+import com.google.accompanist.web.rememberWebViewState
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterialApi::class)
@@ -108,8 +117,26 @@ class MainActivity : ComponentActivity() {
                         navController.popBackStack()
                     }
                 }
+                composable("result") {
+                    WebViewScreen()
+                }
             }
+        }
+        // Handle the notification intent
+        handleNotificationIntent(intent)
+    }
 
+    private fun handleNotificationIntent(intent: Intent?) {
+        intent?.let {
+            val title = it.getStringExtra("notification_title")
+            val body = it.getStringExtra("notification_body")
+
+            // Use the title and body as needed
+            if (title != null && body != null) {
+                // Handle navigation or any other action here
+                println("Notification clicked with title: $title and body: $body")
+                // Example: Navigate to a specific screen or show a dialog
+            }
         }
     }
 
@@ -410,6 +437,7 @@ private fun createNotificationChannel(context: Context) {
     }
 }
 
+@SuppressLint("InlinedApi")
 private fun showDownloadNotification(
     context: Context,
     notificationManager: NotificationManagerCompat,
@@ -451,4 +479,29 @@ private fun showDownloadNotification(
         return
     }
     notificationManager.notify(notificationId, builder.build())
+}
+
+@SuppressLint("SetJavaScriptEnabled")
+@Composable
+fun WebViewScreen() {
+    val url = "https://www.ipuranklist.com/student"
+    val webViewState = rememberWebViewState(url)
+    var isWebViewVisible by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        WebView(
+            state = webViewState,
+            onCreated = { webView ->
+                webView.settings.javaScriptEnabled = true
+                webView.settings.userAgentString = "Android"
+                webView.webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: android.webkit.WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        isWebViewVisible = true
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }

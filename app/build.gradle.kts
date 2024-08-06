@@ -112,4 +112,7 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.moshi.adapters)
     implementation(libs.moshi.converter)
+
+    // Web view
+    implementation (libs.accompanist.webview)
 }
