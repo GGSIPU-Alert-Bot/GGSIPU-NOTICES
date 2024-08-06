@@ -10,7 +10,9 @@ import retrofit2.http.Path
 interface ApiService {
     @GET("/notices/latest")
     suspend fun getNotices(): List<Notice>
+}
 
+interface FcmApiService {
     @PUT("/api/devices/{deviceId}/fcm-token")
     suspend fun sendFcmToken(@Path("deviceId") deviceId: String, @Body token: FcmTokenRequest): Response<Unit>
 }

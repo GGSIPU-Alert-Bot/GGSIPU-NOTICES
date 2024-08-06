@@ -27,7 +27,7 @@ import javax.inject.Inject
 class MyFirebaseMessagingService: FirebaseMessagingService() {
 
     @Inject
-    lateinit var apiHelper: ApiHelper
+    lateinit var fcmApiHelper: FcmApiHelper
 
     @Inject
     @ApplicationContext
@@ -52,7 +52,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         Log.i("FCM Token: ", token)
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = apiHelper.sendFcmToken(deviceId, fcmTokenRequest)
+                val response = fcmApiHelper.sendFcmToken(deviceId, fcmTokenRequest)
                 if (response.isSuccessful) {
                     Log.i("FCM", "Token sent to server successfully")
                     withContext(Dispatchers.Main) {
