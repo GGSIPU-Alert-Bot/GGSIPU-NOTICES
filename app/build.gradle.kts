@@ -91,14 +91,14 @@ dependencies {
     implementation(libs.lottie.compose)
     // Navigation compose
     implementation(libs.androidx.navigation.compose)
-    implementation("androidx.compose.foundation:foundation:1.4.2")
-    implementation("com.google.accompanist:accompanist-swiperefresh:0.35.1-alpha")
-    implementation("com.google.accompanist:accompanist-placeholder-material:0.24.3-alpha")
-    implementation("androidx.compose.material:material:1.3.0")
+    implementation(libs.androidx.foundation)
+    implementation(libs.accompanist.swiperefresh)
+    implementation(libs.accompanist.placeholder.material)
+    implementation(libs.androidx.material)
 
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(libs.coil.compose)
 
-    implementation ("com.itextpdf:itextg:5.5.10") // Use the version appropriate for your project
+    implementation (libs.itextpdf.itextg) // Use the version appropriate for your project
 
     // OSS Licences
     implementation (libs.play.services.oss.licenses)

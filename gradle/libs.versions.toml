@@ -1,7 +1,12 @@
 [versions]
+accompanistPlaceholderMaterial = "0.24.3-alpha"
+accompanistSwiperefresh = "0.35.1-alpha"
 accompanistWebview = "0.28.0"
 agp = "8.5.1"
+coilCompose = "2.7.0"
 firebaseBom = "33.1.2"
+foundation = "1.6.8"
+itextgVersion = "5.5.10"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -16,6 +21,7 @@ converterGson = "2.11.0"
 hiltAndroidCompiler = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 lottieCompose = "6.4.1"
+material = "1.6.8"
 materialIconsExtended = "1.7.0-beta06"
 navigationCompose = "2.8.0-beta06"
 okhttp = "5.0.0-alpha.14"
@@ -26,10 +32,16 @@ moshi = "1.15.1"
 moshiKotlin = "1.14.0"
 
 [libraries]
+accompanist-placeholder-material = { module = "com.google.accompanist:accompanist-placeholder-material", version.ref = "accompanistPlaceholderMaterial" }
+accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
 accompanist-webview = { module = "com.google.accompanist:accompanist-webview", version.ref = "accompanistWebview" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
+androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+itextpdf-itextg = { module = "com.itextpdf:itextg", version.ref = "itextgVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

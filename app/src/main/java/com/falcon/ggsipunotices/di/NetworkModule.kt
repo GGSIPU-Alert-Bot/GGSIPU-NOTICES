@@ -15,7 +15,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     private const val NOTICES_BASE_URL = "https://notice-scrap-server.azurewebsites.net/"
-    private const val FCM_BASE_URL = "https://fcm-server-8ng8.onrender.com/"
+    private const val FCM_BASE_URL = "https://fcm-server-1.onrender.com/"
 
     private val fcmRetrofit =
         Retrofit.Builder()
