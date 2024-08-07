@@ -89,8 +89,58 @@ class MainActivity : ComponentActivity() {
                 confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded },
                 skipHalfExpanded = true
             )
-            val context = LocalContext.current
             val preferencesList = listOf("All", "High Priority")
+            val collegePreferenceList = listOf(
+                "all",
+                "ADGITM (Northern India Engineering College)",
+                "Army College of Medical Sciences (ACMS)",
+                "Atal Bihari Vajpayee Institute of Medical Sciences and Dr. Ram Manohar Lohia Hospital (ABVIMS & RMLH)",
+                "B. M. Institute of Engineering & Technology (BMIET)",
+                "Banarsidas Chandiwala Institute of Management and Technology (BCIMT)",
+                "Bhai Parmanand Institute of Business Studies (BPIBS)",
+                "Bhagwan Mahaveer College of Engineering and Management (BMCE&M)",
+                "Ch. Brahm Prakash Ayurved Charak Sansthan (CBPACS)",
+                "C-DAC, Noida (CDAC)",
+                "Delhi Institute of Heritage Research & Management (DIHRM)",
+                "Delhi Institute of Technology & Management (DITM)",
+                "Delhi Metropolitan Education (DME)",
+                "Delhi Technical Campus (DTC)",
+                "Dr. Baba Saheb Ambedkar Medical College and Hospital (BSAMCH)",
+                "DSPSR (Delhi School of Professional Studies and Research)",
+                "Fairfield Institute of Management and Technology (FIMT)",
+                "Guru Tegh Bahadur Institute of Technology (GTBIT)",
+                "Institute of Information Technology and Management (IITM)",
+                "Jagan Institute of Management Studies (JIMS)",
+                "Kalka Institute of Education and Research (KIER)",
+                "KCC Institute of Legal and Higher Education (KCCILHE)",
+                "Maharaja Agrasen Institute of Management Studies (MAIMS)",
+                "Maharaja Agrasen Institute of Technology (MAIT)",
+                "Maharaja Surajmal Institute (MSI)",
+                "Maharaja Surajmal Institute of Technology (MSIT)",
+                "Management Education & Research Institute (MERI)",
+                "National Power Training Institute (NPTI)",
+                "New Delhi Institute of Management (NDIM)",
+                "North Delhi Municipal Corporation Medical College (NDMCMC)",
+                "Rukmini Devi Institute of Advanced Studies (RDIAS)",
+                "Sirifort Institute of Management Studies (SIMS)",
+                "Tecnia Institute of Advanced Studies (TIAS)",
+                "Trinity Institute of Professional Studies (TIPS)",
+                "University School of Architecture and Planning (USAP)",
+                "University School of Automation and Robotics (USAR)",
+                "University School of Basic & Applied Sciences (USBAS)",
+                "University School of Biotechnology (USBT)",
+                "University School of Chemical Technology (USCT)",
+                "University School of Design & Innovation (USDI)",
+                "University School of Environment Management (USEM)",
+                "University School of Humanities & Social Sciences (USHSS)",
+                "University School of Information and Communication Technology (USICT)",
+                "University School of Law and Legal Studies (USLLS)",
+                "University School of Management Studies (USMS)",
+                "University School of Mass Communication (USMC)",
+                "University School of Medicine and Para-Medical Health Sciences (USMPMHS)",
+                "Vardhman Mahavir Medical College and Safdarjung Hospital (VMMC & SJH)",
+                "Vivekananda Institute of Professional Studies (VIPS)"
+            )
             val title = intent.getStringExtra("notification_title")
             val body = intent.getStringExtra("notification_body")
             val fcmNoticeId = intent.getStringExtra("notice_id")
@@ -114,7 +164,10 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 composable("settings") {
-                    SettingsScreen(preferenceList = preferencesList) {
+                    SettingsScreen(
+                        notificationPreferenceList = preferencesList,
+                        collegePreferenceList = collegePreferenceList
+                    ) {
                         navController.popBackStack()
                     }
                 }

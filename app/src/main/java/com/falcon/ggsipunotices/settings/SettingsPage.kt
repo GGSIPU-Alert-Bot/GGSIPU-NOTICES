@@ -1,7 +1,6 @@
 package com.falcon.ggsipunotices.settings
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -20,20 +19,22 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import com.falcon.ggsipunotices.R
+import com.falcon.ggsipunotices.utils.Utils.COLLEGE
+import com.falcon.ggsipunotices.utils.Utils.PREFERENCE
 import com.falcon.unikit.settings.PreferenceCategory
 import com.falcon.unikit.settings.RegularPreference
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 
 @Composable
 fun SettingsScreen(
-    preferenceList: List<String>,
+    notificationPreferenceList: List<String>,
+    collegePreferenceList: List<String>,
     onBackCLick: () -> Boolean
 ) {
     Scaffold(
@@ -47,7 +48,7 @@ fun SettingsScreen(
                     IconButton(
                         onClick = {
                             onBackCLick()
-                                  },
+                        },
                         content = {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
@@ -92,7 +93,8 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             PreferenceCategory("General")
-            PreferencePicker(preferenceList = preferenceList)
+            PreferencePicker(preferenceList = notificationPreferenceList, preferenceName = PREFERENCE, label = "Notification Preference", defaultValue = "all", enableSearch = false)
+            PreferencePicker(preferenceList = collegePreferenceList, preferenceName = COLLEGE, label = "College Preference", defaultValue = "all", enableSearch = true)
             RegularPreference("Contact Us", "", {sendMail("Regarding App ")})
             PreferenceCategory("About")
             RegularPreference("Introducing \"Summarizer\" - a user-friendly app that streamlines your reading experience. Whether it's a PDF, an image from your gallery, or a real-time photo captured by your camera, this powerful tool swiftly extracts text and generates concise summaries. Select your preferred language for summarization, ensuring content is presented in a language you understand best. With \"Summarizer,\" effortlessly grasp the main ideas and key points, transforming the way you consume information and saving you valuable time.", "", {})
