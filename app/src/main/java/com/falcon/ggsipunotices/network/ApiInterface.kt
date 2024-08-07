@@ -14,5 +14,20 @@ interface ApiService {
 
 interface FcmApiService {
     @PUT("/api/devices/{deviceId}/fcm-token")
-    suspend fun sendFcmToken(@Path("deviceId") deviceId: String, @Body token: FcmTokenRequest): Response<Unit>
+    suspend fun sendFcmToken(
+        @Path("deviceId") deviceId: String,
+        @Body token: FcmTokenRequest
+    ): Response<Unit>
+
+    @PUT("/api/devices/{deviceId}/preferences")
+    suspend fun sendFcmPreference(
+        @Path("deviceId") deviceId: String,
+        @Body preference: FcmPreferenceRequest
+    ): Response<Unit>
+
+    @PUT("/api/devices/{deviceId}/college-preference")
+    suspend fun sendCollegePreference(
+        @Path("deviceId") deviceId: String,
+        @Body college: FcmCollegePreferenceRequest
+    ): Response<Unit>
 }
