@@ -39,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -65,7 +64,8 @@ fun NoticeListScreen(
     openFile: (Context, File) -> Unit,
     shareFile: (String, File) -> Unit,
     activity: ComponentActivity?,
-    modalSheetState: ModalBottomSheetState
+    modalSheetState: ModalBottomSheetState,
+    fcmNoticeId: String?
 ) {
     val scope = rememberCoroutineScope()
     val mainViewModel: MainViewModel = hiltViewModel()
@@ -110,6 +110,9 @@ fun NoticeListScreen(
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         val filteredNotices = (noticesState as Resource.Success<List<Notice>>).data.filter {
                             it.title?.contains(searchQuery, true) ?: false
+                        }
+                        val newNotices = filteredNotices.filter {
+                            it.id.toString() == fcmNoticeId
                         }
                         items(filteredNotices) { notice ->
                             SuperNoticeItem(

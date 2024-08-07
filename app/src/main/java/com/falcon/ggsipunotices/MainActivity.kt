@@ -70,12 +70,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.FileOutputStream
 
-import android.view.View
 import android.webkit.WebViewClient
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.viewinterop.AndroidView
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
 
@@ -94,6 +91,9 @@ class MainActivity : ComponentActivity() {
             )
             val context = LocalContext.current
             val preferencesList = listOf("All", "High Priority")
+            val title = intent.getStringExtra("notification_title")
+            val body = intent.getStringExtra("notification_body")
+            val fcmNoticeId = intent.getStringExtra("notice_id")
             NavHost(navController = navController, startDestination = "main_screen") {
                 composable("main_screen") {
                     ModalBottomSheetLayout(
@@ -108,7 +108,8 @@ class MainActivity : ComponentActivity() {
                             openFile = ::openFile,
                             shareFile = ::shareFile,
                             activity = this@MainActivity,
-                            modalSheetState = modalSheetState
+                            modalSheetState = modalSheetState,
+                            fcmNoticeId = fcmNoticeId
                         )
                     }
                 }

@@ -60,7 +60,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Failed to send token to server", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Failed to connect to server", Toast.LENGTH_SHORT).show()
                         Log.i("FCM Error 1", response.errorBody()?.string() ?: "Unknown error")
                         Log.i("FCM Error 2", response.message())
                     }
@@ -77,23 +77,25 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         // Handle the received message
         remoteMessage.notification?.let {
             // If it's a notification message
-            showNotification(it.title ?: "New Notice", it.body ?: "Check your app for details")
+            showNotification(it.title ?: "New Notice", it.body ?: "Check your app for details", null)
         }
 
         // If it's a data message
         if (remoteMessage.data.isNotEmpty()) {
+            val id = remoteMessage.data["id"]
             val title = remoteMessage.data["title"] ?: "New Notice"
             val message = remoteMessage.data["message"] ?: "Check your app for details"
-            showNotification(title, message)
+            showNotification(title, message, id)
         }
     }
     @SuppressLint("ServiceCast")
-    private fun showNotification(title: String, body: String) {
+    private fun showNotification(title: String, body: String, id: String?) {
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("notification_title", title)
             putExtra("notification_body", body)
+            putExtra("notice_id", id ?: "UNKNOWN_ID")
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
