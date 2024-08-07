@@ -1,14 +1,11 @@
 package com.falcon.ggsipunotices.ui
 
 import android.annotation.SuppressLint
-import android.os.Environment
 import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -32,9 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.drawOutline
@@ -45,28 +42,30 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.falcon.ggsipunotices.R
 import com.falcon.ggsipunotices.model.Notice
 import kotlinx.coroutines.delay
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, wallpaper = Wallpapers.NONE)
 @Composable
 fun NoticeItemPreview() {
     NoticeItem(
-        notice = Notice(0, "14-09-2003", "Syllabus", "www.google.com", "never")
+        notice = Notice(0, "14-09-2003", "Syllabus", "www.google.com", "never"),
+        newNotices = listOf()
     )
 }
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun NoticeItem(
-    notice: Notice
+    notice: Notice,
+    newNotices: List<Notice>
 ) {
     val formatedDate = try {
         notice.date?.let { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it) }?.let { SimpleDateFormat("MMM-dd", Locale.getDefault()).format(it) }
@@ -74,30 +73,38 @@ fun NoticeItem(
         Log.i("Error NoticeItem:", e.message.toString())
         null
     }
-    var isVisible by remember { mutableStateOf(true) } // TODO: Change According to If the Notice is New
+    var isVisible by remember {
+        mutableStateOf (
+            newNotices.contains(notice)
+        )
+    }
     val borderAlpha by animateFloatAsState(
         targetValue = if (isVisible) 1f else 0f,
         animationSpec = tween(durationMillis = 1000), label = ""
     )
     LaunchedEffect(Unit) {
-        delay(2000)
+        delay(2500)
         isVisible = false
     }
-
     BoxWithConstraints(
         modifier = Modifier
-            .padding(8.dp)
+            .padding(4.dp, 2.dp, 4.dp, 2.dp)
             .drawBehind {
                 if (borderAlpha > 0) {
-                    val stroke = Stroke(width = 2.dp.toPx())
-                    val outline = Outline.Rectangle(Rect(radius = 10f, center = Offset(size.width, size.height)))
+                    val stroke = Stroke(width = 1.dp.toPx())
+                    val outline = Outline.Rounded(RoundRect(
+                        Rect(0f, 0f, size.width, size.height),
+                        cornerRadius = CornerRadius(10.dp.toPx())
+                    ))
                     drawOutline(
                         outline = outline,
                         color = Color.Blue.copy(alpha = borderAlpha),
                         style = stroke
                     )
                 }
-            },
+            }
+            .padding(4.dp, 2.dp, 4.dp, 2.dp)
+        ,
         content = {
             Row(
                 modifier = Modifier
@@ -108,7 +115,7 @@ fun NoticeItem(
                         // TODO: Open file
                     },
                 horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically, // TODO
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (notice.iconURL != null) {
                     AsyncImage(
@@ -127,7 +134,6 @@ fun NoticeItem(
                             .size(35.dp)
                             .clip(CutCornerShape(CornerSize(3.dp))),
                         contentScale = ContentScale.FillBounds
-//                    .background(Color.Gray)
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
@@ -152,101 +158,4 @@ fun NoticeItem(
             }
         }
     )
-
 }
-
-
-//    Card(
-//        shape = RoundedCornerShape(8.dp),
-//        colors = CardDefaults.cardColors (
-//            containerColor = Color.White
-//        ),
-//        border = BorderStroke(1.dp, Color.Black),
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(8.dp)
-//            .placeholder(visible = false)
-//    ) {
-//        Row(
-//            verticalAlignment = Alignment.CenterVertically,
-//            modifier = Modifier.padding(8.dp)
-//        ) {
-//            Image(
-//                painter = painterResource(id = R.drawable.notes_blue),
-//                contentDescription = "",
-//                modifier = Modifier
-//                    .size(28.dp)
-//            )
-//
-//
-//
-//            Column(modifier = Modifier.weight(1f)) {
-//                Text(notice.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-//                Text(notice.createdAt, color = Color.Gray)
-//            }
-//            Row {
-//                IconButton(onClick = {
-//                    if (!file.exists()) {
-//                        startDownloading(notice.url, fileTitle)
-//                    }
-//                    openFile(file)
-//                }) {
-//                    Icon(
-//                        imageVector = Icons.Default.Download,
-//                        contentDescription = "Download & Open",
-//                        tint = Color.Blue
-//                    )
-//                }
-//                IconButton(onClick = {
-//                    if (!file.exists()) {
-//                        startDownloading(notice.url, fileTitle)
-//                    }
-//                    shareFile(fileTitle)
-//                }) {
-//                    Icon(
-//                        imageVector = Icons.Default.Share,
-//                        contentDescription = "Share",
-//                        tint = Color.Blue
-//                    )
-//                }
-//            }
-//        }
-//    }
-
-
-
-
-
-//@Composable
-//fun NoticeItem2(
-//    notice: Notice = Notice(0, "14-09-2003", "Syllabus", "www.google.com", "never"),
-//    startDownloading: (String, String) -> Unit,
-//    openFile: (File) -> Unit,
-//    shareFile: (String) -> Unit
-//) {
-//    ListItem(
-//        modifier = Modifier.clip(MaterialTheme.shapes.small),
-//        headlineContent = {
-//            Text(
-//                notice.title,
-//                style = MaterialTheme.typography.titleMedium
-//            )
-//        },
-//        supportingContent = {
-//            Text(
-//                notice.createdAt,
-//                style = MaterialTheme.typography.bodySmall
-//            )
-//        },
-//        leadingContent = {
-//            Icon(
-//                Icons.Filled.Person,
-//                contentDescription = "person icon",
-//                Modifier
-//                    .clip(CircleShape)
-//                    .background(MaterialTheme.colorScheme.primaryContainer)
-//                    .padding(10.dp)
-//            )
-//        }
-//    )
-//}

@@ -112,7 +112,7 @@ fun NoticeListScreen(
                             it.title?.contains(searchQuery, true) ?: false
                         }
                         val newNotices = filteredNotices.filter {
-                            it.id.toString() == fcmNoticeId
+                            it.id.toString() == "2571870" // TODO: Replace with fcmNoticeId LIST
                         }
                         items(filteredNotices) { notice ->
                             SuperNoticeItem(
@@ -120,7 +120,8 @@ fun NoticeListScreen(
                                 startDownloading = startDownloading,
                                 openFile = openFile,
                                 shareFile = shareFile,
-                                activity = activity
+                                activity = activity,
+                                newNotices = newNotices
                             )
                         }
                     }

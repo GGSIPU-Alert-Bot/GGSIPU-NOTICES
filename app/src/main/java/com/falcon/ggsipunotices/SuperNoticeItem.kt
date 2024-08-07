@@ -3,10 +3,6 @@ package com.falcon.ggsipunotices
 import android.content.Context
 import android.os.Environment
 import androidx.activity.ComponentActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue.EndToStart
@@ -14,19 +10,14 @@ import androidx.compose.material3.SwipeToDismissBoxValue.Settled
 import androidx.compose.material3.SwipeToDismissBoxValue.StartToEnd
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.falcon.ggsipunotices.model.Notice
 import com.falcon.ggsipunotices.ui.NoticeItem
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import java.io.File
 import java.util.Random
 
@@ -38,7 +29,8 @@ fun SuperNoticeItem(
     startDownloading: (String, Context, String?, Int, CoroutineScope, ComponentActivity?) -> Unit,
     openFile: (Context, File) -> Unit,
     shareFile: (String, File) -> Unit,
-    activity: ComponentActivity?
+    activity: ComponentActivity?,
+    newNotices: List<Notice>
 ) {
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(notice)
@@ -47,15 +39,13 @@ fun SuperNoticeItem(
         context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
         fileTitle
     )
-    val scope = rememberCoroutineScope(
-
-    )
+    val scope = rememberCoroutineScope()
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
             when(it) {
                 StartToEnd -> {
                     // CurrentItem // Share
-//                    Toast.makeText(context, "StartToEnd Swiped", Toast.LENGTH_SHORT).show()
+                    // StartToEnd Swiped
                     if (file.exists()) {
                         shareFile(fileTitle, file)
                     } else {
@@ -64,7 +54,7 @@ fun SuperNoticeItem(
                 }
                 EndToStart -> {
                     // CurrentItem // Download
-//                    Toast.makeText(context, "EndToStart Swiped", Toast.LENGTH_SHORT).show()
+                    // EndToStart Swiped
                     if (file.exists()) {
                         openFile(context, file)
                     } else {
@@ -75,7 +65,7 @@ fun SuperNoticeItem(
             }
             return@rememberSwipeToDismissBoxState false
         },
-        // positional threshold of 25%
+        // positional threshold of 30%
         positionalThreshold = { it * .30f }
     )
     SwipeToDismissBox(
@@ -84,7 +74,8 @@ fun SuperNoticeItem(
         backgroundContent = { DismissBackground(dismissState)},
         content = {
             NoticeItem(
-                notice = notice
+                notice = notice,
+                newNotices = newNotices
             )
         })
 }
