@@ -73,6 +73,7 @@ import java.io.FileOutputStream
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.core.content.ContextCompat
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
 
@@ -82,6 +83,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge() // Removed in order to bring status bar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermission()
+        }
         setContent {
             val navController = rememberNavController()
             val modalSheetState = rememberModalBottomSheetState(
@@ -323,6 +327,34 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this, "First Download the file", Toast.LENGTH_SHORT).show()
         }
     }
+    private fun requestNotificationPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // Permission already granted
+                Log.i("Notification", "Permission already granted")
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                // Show UI explaining why the permission is needed
+            }
+            else -> {
+                // Request the permission
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission granted
+                Log.i("Notification", "Permission granted")
+            } else {
+                // Permission denied
+                Log.i("Notification", "Permission denied")
+                Toast.makeText(this, "Permission denied, You Won't Be Notified of Any New Notice Published", Toast.LENGTH_LONG).show()
+            }
+        }
 }
 
 
