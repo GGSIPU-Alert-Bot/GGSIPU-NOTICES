@@ -55,6 +55,7 @@ import com.google.accompanist.placeholder.material.shimmer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.ArrayList
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -65,7 +66,7 @@ fun NoticeListScreen(
     shareFile: (String, File) -> Unit,
     activity: ComponentActivity?,
     modalSheetState: ModalBottomSheetState,
-    fcmNoticeId: String?
+    fcmNoticeIdList: ArrayList<String>?
 ) {
     val scope = rememberCoroutineScope()
     val mainViewModel: MainViewModel = hiltViewModel()
@@ -112,7 +113,8 @@ fun NoticeListScreen(
                             it.title?.contains(searchQuery, true) ?: false
                         }
                         val newNotices = filteredNotices.filter {
-                            it.id.toString() == "2571870" // TODO: Replace with fcmNoticeId LIST
+                            fcmNoticeIdList?.contains(it.id.toString()) == true
+//                            it.id.toString() == "2571870" // TODO: Replace with fcmNoticeId LIST
                         }
                         items(filteredNotices) { notice ->
                             SuperNoticeItem(

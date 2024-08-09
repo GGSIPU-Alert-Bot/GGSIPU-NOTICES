@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -44,7 +45,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,15 +74,21 @@ import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
+import com.falcon.ggsipunotices.network.FcmApiHelper
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var fcmApiHelper: FcmApiHelper
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge() // Removed in order to bring status bar
+        val deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestNotificationPermission()
         }
@@ -147,7 +153,9 @@ class MainActivity : ComponentActivity() {
             )
             val title = intent.getStringExtra("notification_title")
             val body = intent.getStringExtra("notification_body")
-            val fcmNoticeId = intent.getStringExtra("notice_id")
+
+            val fcmNoticeId = intent.getStringArrayListExtra("noticeIds")
+
             NavHost(navController = navController, startDestination = "main_screen") {
                 composable("main_screen") {
                     ModalBottomSheetLayout(
@@ -163,14 +171,16 @@ class MainActivity : ComponentActivity() {
                             shareFile = ::shareFile,
                             activity = this@MainActivity,
                             modalSheetState = modalSheetState,
-                            fcmNoticeId = fcmNoticeId
+                            fcmNoticeIdList = fcmNoticeId
                         )
                     }
                 }
                 composable("settings") {
                     SettingsScreen(
                         notificationPreferenceList = preferencesList,
-                        collegePreferenceList = collegePreferenceList
+                        collegePreferenceList = collegePreferenceList,
+                        fcmApiHelper = fcmApiHelper,
+                        deviceId = deviceId
                     ) {
                         navController.popBackStack()
                     }

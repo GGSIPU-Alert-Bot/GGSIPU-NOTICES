@@ -11,4 +11,10 @@ class ApiHelper @Inject constructor(private val apiService: ApiService) {
 class FcmApiHelper @Inject constructor(private val apiService: FcmApiService) {
     suspend fun sendFcmToken(deviceId: String, token: FcmTokenRequest): Response<Unit> =
         apiService.sendFcmToken(deviceId, token)
+
+    suspend fun sendFcmPreference(deviceId: String, preference: FcmPreferenceRequest): Response<Unit> =
+        apiService.sendFcmPreference(deviceId, preference)
+
+    suspend fun sendCollegePreference(deviceId: String, college: FcmCollegePreferenceRequest): Response<Unit> =
+        apiService.sendCollegePreference(deviceId, college)
 }

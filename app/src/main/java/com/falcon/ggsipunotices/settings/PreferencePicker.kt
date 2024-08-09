@@ -32,10 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.falcon.ggsipunotices.R
 
 @Composable
 fun PreferencePicker(
@@ -43,7 +41,8 @@ fun PreferencePicker(
     preferenceName: String,
     defaultValue: String,
     enableSearch: Boolean,
-    label: String
+    label: String,
+    onPreferenceChange: (String) -> Unit
 ) {
     val context = LocalContext.current
     val sharedPreferences = remember {
@@ -142,6 +141,7 @@ fun PreferencePicker(
             }
             filteredList.forEach { preference ->
                 DropdownMenuItem(onClick = {
+                    onPreferenceChange(preference)
                     editor.putString(preferenceName, preference)
                     editor.apply()
                     Log.i("qwertyuiop", preference)

@@ -73,51 +73,96 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        // Respond to received message
-        // Handle the received message
-        remoteMessage.notification?.let {
-            // If it's a notification message
-            showNotification(it.title ?: "New Notice", it.body ?: "Check your app for details", null)
-        }
+        remoteMessage.notification?.let { notification ->
+            val title = notification.title ?: "New Notice"
+            val body = notification.body ?: "You have a new notice"
 
-        // If it's a data message
-        if (remoteMessage.data.isNotEmpty()) {
-            val id = remoteMessage.data["id"]
-            val title = remoteMessage.data["title"] ?: "New Notice"
-            val message = remoteMessage.data["message"] ?: "Check your app for details"
-            showNotification(title, message, id)
+            val data = remoteMessage.data
+            val isPriority = data["isPriority"] == "true"
+            val noticeIds = data["noticeIds"]?.split(",") ?: listOf()
+            val timestamp = data["timestamp"]?.toLongOrNull()
+                ?: data["latestTimestamp"]?.toLongOrNull()
+
+            if (isPriority) {
+                handlePriorityNotice(title, body, noticeIds, timestamp)
+            } else {
+                val updateCount = data["updateCount"]?.toIntOrNull() ?: noticeIds.size
+                handleBundledNotices(title, body, noticeIds, updateCount, timestamp)
+            }
         }
     }
-    @SuppressLint("ServiceCast")
-    private fun showNotification(title: String, body: String, id: String?) {
 
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra("notification_title", title)
-            putExtra("notification_body", body)
-            putExtra("notice_id", id ?: "UNKNOWN_ID")
+    private fun handlePriorityNotice(title: String, body: String, noticeIds: List<String>, timestamp: Long?) {
+        // Typically, there will be only one ID for priority notices
+//        val noticeId = noticeIds.firstOrNull()
+        val intent = Intent(this, MainActivity::class.java).apply {
+//            putExtra("noticeId", noticeId)
+            putStringArrayListExtra("noticeIds", ArrayList(noticeIds))
         }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        showNotification(title, body, intent, true, noticeIds.hashCode())
+    }
 
+    private fun handleBundledNotices(title: String, body: String, noticeIds: List<String>, updateCount: Int, timestamp: Long?) {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putStringArrayListExtra("noticeIds", ArrayList(noticeIds))
+        }
+        showNotification(title, body, intent, false, 1) // Using a fixed ID for bundled notifications
+    }
+
+    private fun showNotification(title: String, body: String, intent: Intent, isPriority: Boolean, notificationId: Int) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = "default_channel_id"
+        val channelId = if (isPriority) "priority_channel" else "default_channel"
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId,
-                "Default Channel",
-                NotificationManager.IMPORTANCE_DEFAULT)
+            val importance = if (isPriority) NotificationManager.IMPORTANCE_HIGH else NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(channelId, channelId, importance)
             notificationManager.createNotificationChannel(channel)
         }
 
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+        val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.notes_grey)
             .setContentTitle(title)
             .setContentText(body)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(if (isPriority) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .build()
 
-        notificationManager.notify(0, notificationBuilder.build())
+        notificationManager.notify(notificationId, notification)
     }
+
+//    @SuppressLint("ServiceCast")
+//    private fun showNotification(title: String, body: String, id: String?) {
+//
+//        val intent = Intent(context, MainActivity::class.java).apply {
+//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//            putExtra("notification_title", title)
+//            putExtra("notification_body", body)
+//            putExtra("notice_id", id ?: "UNKNOWN_ID")
+//        }
+//        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+//
+//        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+//        val channelId = "default_channel_id"
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            val channel = NotificationChannel(channelId,
+//                "Default Channel",
+//                NotificationManager.IMPORTANCE_DEFAULT)
+//            notificationManager.createNotificationChannel(channel)
+//        }
+//
+//        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+//            .setSmallIcon(R.drawable.notes_grey)
+//            .setContentTitle(title)
+//            .setContentText(body)
+//            .setPriority(NotificationCompat.PRIORITY_HIGH)
+//            .setContentIntent(pendingIntent)
+//            .setAutoCancel(true)
+//
+//        notificationManager.notify(0, notificationBuilder.build())
+//    }
 
 }
