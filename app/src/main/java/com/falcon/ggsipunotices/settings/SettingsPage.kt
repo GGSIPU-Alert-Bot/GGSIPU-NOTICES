@@ -97,8 +97,6 @@ fun SettingsScreen(
             PreferencePicker(preferenceList = notificationPreferenceList, preferenceName = PREFERENCE, label = "Notification Preference", defaultValue = "All",  enableSearch = false, deviceId = deviceId)
             PreferencePicker(preferenceList = collegePreferenceList, preferenceName = COLLEGE, label = "College Preference", defaultValue = "All", enableSearch = true, deviceId = deviceId)
             RegularPreference("Contact Us", "", {sendMail("Regarding App ")})
-            PreferenceCategory("About")
-            RegularPreference("Introducing \"Summarizer\" - a user-friendly app that streamlines your reading experience. Whether it's a PDF, an image from your gallery, or a real-time photo captured by your camera, this powerful tool swiftly extracts text and generates concise summaries. Select your preferred language for summarization, ensuring content is presented in a language you understand best. With \"Summarizer,\" effortlessly grasp the main ideas and key points, transforming the way you consume information and saving you valuable time.", "", {})
             PreferenceCategory("Developer")
             RegularPreference("Bug Report", "",{sendMail("Bug Report For ")})
             RegularPreference("Resources Used", "",{openLink("https://sites.google.com/view/falcon-summarizer/resources-used")})
