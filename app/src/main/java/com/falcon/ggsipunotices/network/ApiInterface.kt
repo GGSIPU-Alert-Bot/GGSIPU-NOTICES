@@ -1,6 +1,10 @@
 package com.falcon.ggsipunotices.network
 
+import com.falcon.ggsipunotices.model.FcmCollegePreferenceRequest
+import com.falcon.ggsipunotices.model.FcmPreferenceRequest
+import com.falcon.ggsipunotices.model.FcmTokenRequest
 import com.falcon.ggsipunotices.model.Notice
+import com.falcon.ggsipunotices.model.PreferenceResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -23,7 +27,7 @@ interface FcmApiService {
     suspend fun sendFcmPreference(
         @Path("deviceId") deviceId: String,
         @Body preference: FcmPreferenceRequest
-    ): Response<Unit>
+    ): Response<PreferenceResponse>
 
     @PUT("/api/devices/{deviceId}/college-preference")
     suspend fun sendCollegePreference(

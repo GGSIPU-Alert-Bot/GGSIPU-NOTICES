@@ -34,6 +34,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.falcon.ggsipunotices.ui.MainViewModel
+import com.falcon.ggsipunotices.utils.Utils.COLLEGE
 
 @Composable
 fun PreferencePicker(
@@ -42,14 +45,15 @@ fun PreferencePicker(
     defaultValue: String,
     enableSearch: Boolean,
     label: String,
-    onPreferenceChange: (String) -> Unit
+    deviceId: String
 ) {
+    val mainViewModel: MainViewModel = hiltViewModel()
     val context = LocalContext.current
     val sharedPreferences = remember {
         context.getSharedPreferences("token_prefs", Context.MODE_PRIVATE)
     }
     val preference = sharedPreferences.getString(preferenceName, defaultValue)
-    Log.i(preferenceName, "meow" + preference.toString())
+    Log.i(preferenceName, preference.toString())
     var mSelectedText by remember { mutableStateOf(preference) }
     val editor = sharedPreferences.edit()
 
@@ -141,7 +145,17 @@ fun PreferencePicker(
             }
             filteredList.forEach { preference ->
                 DropdownMenuItem(onClick = {
-                    onPreferenceChange(preference)
+                    if (preferenceName == COLLEGE) {
+                        mainViewModel.sendFcmCollegePreference(
+                            deviceId = deviceId,
+                            college = preference
+                        )
+                    } else {
+                        mainViewModel.sendFcmNotificationPreference(
+                            deviceId = deviceId,
+                            notificationPreference = preference
+                        )
+                    }
                     editor.putString(preferenceName, preference)
                     editor.apply()
                     Log.i("qwertyuiop", preference)

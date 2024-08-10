@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
+import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,9 +24,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,8 +43,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.getSystemService
 import androidx.navigation.NavHostController
@@ -59,36 +66,29 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.falcon.ggsipunotices.settings.SettingsScreen
 import com.falcon.ggsipunotices.ui.NoticeListScreen
+import com.google.accompanist.web.WebView
+import com.google.accompanist.web.rememberWebViewState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.io.File
 import java.io.FileOutputStream
-
-import android.webkit.WebViewClient
-import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
-import androidx.core.content.ContextCompat
-import com.falcon.ggsipunotices.network.FcmApiHelper
-import com.google.accompanist.web.WebView
-import com.google.accompanist.web.rememberWebViewState
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject
-    lateinit var fcmApiHelper: FcmApiHelper
+    @SuppressLint("HardwareIds")
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge() // Removed in order to bring status bar
         val deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+        Log.i("com.falcon.ggsipunotices.model.Device ID", deviceId)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestNotificationPermission()
         }
@@ -151,8 +151,6 @@ class MainActivity : ComponentActivity() {
                 "Vardhman Mahavir Medical College and Safdarjung Hospital (VMMC & SJH)",
                 "Vivekananda Institute of Professional Studies (VIPS)"
             )
-            val title = intent.getStringExtra("notification_title")
-            val body = intent.getStringExtra("notification_body")
 
             val fcmNoticeId = intent.getStringArrayListExtra("noticeIds")
 
@@ -179,7 +177,6 @@ class MainActivity : ComponentActivity() {
                     SettingsScreen(
                         notificationPreferenceList = preferencesList,
                         collegePreferenceList = collegePreferenceList,
-                        fcmApiHelper = fcmApiHelper,
                         deviceId = deviceId
                     ) {
                         navController.popBackStack()

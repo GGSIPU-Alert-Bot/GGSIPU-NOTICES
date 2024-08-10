@@ -3,7 +3,6 @@ package com.falcon.ggsipunotices.settings
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,60 +25,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import com.falcon.ggsipunotices.R
-import com.falcon.ggsipunotices.network.FcmApiHelper
-import com.falcon.ggsipunotices.network.FcmCollegePreferenceRequest
-import com.falcon.ggsipunotices.network.FcmPreferenceRequest
 import com.falcon.ggsipunotices.utils.Utils.COLLEGE
 import com.falcon.ggsipunotices.utils.Utils.PREFERENCE
-import com.falcon.unikit.settings.PreferenceCategory
 import com.falcon.unikit.settings.RegularPreference
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun SettingsScreen(
     notificationPreferenceList: List<String>,
     collegePreferenceList: List<String>,
-    fcmApiHelper: FcmApiHelper,
     deviceId: String,
-    onBackCLick: () -> Boolean
+    onBackCLick: () -> Boolean,
 ) {
     val context = LocalContext.current
-    val onCollegePreferenceChange = { college: String ->
-        CoroutineScope(Dispatchers.IO).launch {
-            val result = fcmApiHelper.sendCollegePreference(
-                college = FcmCollegePreferenceRequest(college) ,
-                deviceId = deviceId
-            )
-            withContext(Dispatchers.Main) {
-                if (result.isSuccessful) {
-                    Toast.makeText(context, "College Preference Updated", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Failed To Update College Preference", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        Unit
-    }
-    val onNotificationPreferenceChange = { preference: String ->
-        CoroutineScope(Dispatchers.IO).launch {
-            val result = fcmApiHelper.sendFcmPreference(
-                preference = FcmPreferenceRequest(preference),
-                deviceId = deviceId
-            )
-            withContext(Dispatchers.Main) {
-                if (result.isSuccessful) {
-                    Toast.makeText(context, "Notification Preference Updated", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Failed To Update Notification Preference", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        Unit
-    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -136,8 +94,8 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             PreferenceCategory("General")
-            PreferencePicker(preferenceList = notificationPreferenceList, preferenceName = PREFERENCE, label = "Notification Preference", defaultValue = "all", enableSearch = false, onPreferenceChange = onNotificationPreferenceChange)
-            PreferencePicker(preferenceList = collegePreferenceList, preferenceName = COLLEGE, label = "College Preference", defaultValue = "all", enableSearch = true, onPreferenceChange = onCollegePreferenceChange)
+            PreferencePicker(preferenceList = notificationPreferenceList, preferenceName = PREFERENCE, label = "Notification Preference", defaultValue = "All",  enableSearch = false, deviceId = deviceId)
+            PreferencePicker(preferenceList = collegePreferenceList, preferenceName = COLLEGE, label = "College Preference", defaultValue = "All", enableSearch = true, deviceId = deviceId)
             RegularPreference("Contact Us", "", {sendMail("Regarding App ")})
             PreferenceCategory("About")
             RegularPreference("Introducing \"Summarizer\" - a user-friendly app that streamlines your reading experience. Whether it's a PDF, an image from your gallery, or a real-time photo captured by your camera, this powerful tool swiftly extracts text and generates concise summaries. Select your preferred language for summarization, ensuring content is presented in a language you understand best. With \"Summarizer,\" effortlessly grasp the main ideas and key points, transforming the way you consume information and saving you valuable time.", "", {})

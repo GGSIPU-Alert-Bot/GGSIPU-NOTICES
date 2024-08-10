@@ -114,7 +114,6 @@ fun NoticeListScreen(
                         }
                         val newNotices = filteredNotices.filter {
                             fcmNoticeIdList?.contains(it.id.toString()) == true
-//                            it.id.toString() == "2571870" // TODO: Replace with fcmNoticeId LIST
                         }
                         items(filteredNotices) { notice ->
                             SuperNoticeItem(
