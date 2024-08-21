@@ -13,8 +13,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    private const val NOTICES_BASE_URL = "https://notice-scraper.onrender.com/"
+    private const val NOTICES_BASE_URL = "https://notice-scrap-server.azurewebsites.net"
     private const val FCM_BASE_URL = "https://fcm-server-1.onrender.com/"
 
     private val fcmRetrofit =
