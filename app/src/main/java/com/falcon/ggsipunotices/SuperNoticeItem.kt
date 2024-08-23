@@ -28,7 +28,7 @@ fun SuperNoticeItem(
     modifier: Modifier = Modifier,
     startDownloading: (String, Context, String?, Int, CoroutineScope, ComponentActivity?) -> Unit,
     openFile: (Context, File) -> Unit,
-    shareFile: (String, File) -> Unit,
+    shareFile: (String, File, Boolean) -> Unit,
     activity: ComponentActivity?,
     newNotices: List<Notice>
 ) {
@@ -47,8 +47,9 @@ fun SuperNoticeItem(
                     // CurrentItem // Share
                     // StartToEnd Swiped
                     if (file.exists()) {
-                        shareFile(fileTitle, file)
+                        shareFile(fileTitle, file, true)
                     } else {
+//                        shareFile(fileTitle, file, false)
                         startDownloading(fileTitle, context, notice.url, Random().nextInt(), scope, activity)
                     }
                 }
@@ -65,8 +66,8 @@ fun SuperNoticeItem(
             }
             return@rememberSwipeToDismissBoxState false
         },
-        // positional threshold of 30%
-        positionalThreshold = { it * .30f }
+        // positional threshold of 25%
+        positionalThreshold = { it * .25f }
     )
     SwipeToDismissBox(
         state = dismissState,

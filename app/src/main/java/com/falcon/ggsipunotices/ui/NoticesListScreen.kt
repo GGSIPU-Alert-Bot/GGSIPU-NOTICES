@@ -63,7 +63,7 @@ import java.util.ArrayList
 fun NoticeListScreen(
     startDownloading: (String, Context, String?, Int, CoroutineScope, ComponentActivity?) -> Unit,
     openFile: (Context, File) -> Unit,
-    shareFile: (String, File) -> Unit,
+    shareFile: (String, File, Boolean) -> Unit,
     activity: ComponentActivity?,
     modalSheetState: ModalBottomSheetState,
     fcmNoticeIdList: ArrayList<String>?

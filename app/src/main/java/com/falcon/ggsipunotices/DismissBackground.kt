@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DismissBackground(dismissState: SwipeToDismissBoxState) {
     val color = when (dismissState.dismissDirection) {
-        SwipeToDismissBoxValue.StartToEnd -> Color(0xFF0076FF)
+        SwipeToDismissBoxValue.StartToEnd -> Color(0xFFFFFFFF)
         SwipeToDismissBoxValue.EndToStart -> Color(0xFFFFFFFF)
         SwipeToDismissBoxValue.Settled -> Color.Transparent
     }
@@ -44,9 +44,9 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Icon(
-            painter = painterResource(R.drawable.share_white),
+            painter = painterResource(R.drawable.share_blue),
             contentDescription = "Archive",
-            tint = colorResource(id = R.color.white),
+            tint = colorResource(id = R.color.download_blue),
             modifier = Modifier
                 .size(35.dp)
                 .clip(CutCornerShape(CornerSize(3.dp))),

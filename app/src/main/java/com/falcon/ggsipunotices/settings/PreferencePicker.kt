@@ -117,7 +117,7 @@ fun PreferencePicker(
                 }
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colors.primary,
+                    color = Color.Black,
                     shape = RoundedCornerShape(10.dp)
                 )
         ) {

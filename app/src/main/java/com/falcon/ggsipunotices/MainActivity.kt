@@ -316,7 +316,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun shareFile(fileName: String, file: File) {
+    private fun shareFile(fileName: String, file: File, fileExistance: Boolean) {
         val attachmentUri = FileProvider.getUriForFile(
             this,
             this.application.packageName +".provider",
