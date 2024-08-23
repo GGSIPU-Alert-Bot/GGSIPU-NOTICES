@@ -26,10 +26,8 @@ import java.util.Random
 fun SuperNoticeItem(
     notice: Notice,
     modifier: Modifier = Modifier,
-    startDownloading: (String, Context, String?, Int, CoroutineScope, ComponentActivity?) -> Unit,
-    openFile: (Context, File) -> Unit,
-    shareFile: (String, File, Boolean) -> Unit,
-    activity: ComponentActivity?,
+    openFile: (Context, File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope) -> Unit,
+    shareFile: (File, String, Context, String?, Int, CoroutineScope) -> Unit,
     newNotices: List<Notice>
 ) {
     val context = LocalContext.current
@@ -46,21 +44,12 @@ fun SuperNoticeItem(
                 StartToEnd -> {
                     // CurrentItem // Share
                     // StartToEnd Swiped
-                    if (file.exists()) {
-                        shareFile(fileTitle, file, true)
-                    } else {
-//                        shareFile(fileTitle, file, false)
-                        startDownloading(fileTitle, context, notice.url, Random().nextInt(), scope, activity)
-                    }
+                    shareFile(file, fileTitle, context, notice.url, Random().nextInt(), scope)
                 }
                 EndToStart -> {
                     // CurrentItem // Download
                     // EndToStart Swiped
-                    if (file.exists()) {
-                        openFile(context, file)
-                    } else {
-                        startDownloading(fileTitle, context, notice.url, Random().nextInt(), scope, activity)
-                    }
+                    openFile(context, file, fileTitle, notice.url, Random().nextInt(), scope)
                 }
                 Settled -> return@rememberSwipeToDismissBoxState false
             }

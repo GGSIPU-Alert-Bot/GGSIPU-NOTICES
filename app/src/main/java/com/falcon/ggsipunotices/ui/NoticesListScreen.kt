@@ -61,10 +61,8 @@ import java.util.ArrayList
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NoticeListScreen(
-    startDownloading: (String, Context, String?, Int, CoroutineScope, ComponentActivity?) -> Unit,
-    openFile: (Context, File) -> Unit,
-    shareFile: (String, File, Boolean) -> Unit,
-    activity: ComponentActivity?,
+    openFile: (Context, File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope) -> Unit,
+    shareFile: (File, String, Context, String?, Int, CoroutineScope) -> Unit,
     modalSheetState: ModalBottomSheetState,
     fcmNoticeIdList: ArrayList<String>?
 ) {
@@ -118,10 +116,8 @@ fun NoticeListScreen(
                         items(filteredNotices) { notice ->
                             SuperNoticeItem(
                                 notice = notice,
-                                startDownloading = startDownloading,
                                 openFile = openFile,
                                 shareFile = shareFile,
-                                activity = activity,
                                 newNotices = newNotices
                             )
                         }

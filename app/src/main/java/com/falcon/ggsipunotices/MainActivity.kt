@@ -164,10 +164,8 @@ class MainActivity : ComponentActivity() {
                         }
                     ) {
                         NoticeListScreen(
-                            startDownloading = ::downloadPdfNotification,
                             openFile = ::openFile,
                             shareFile = ::shareFile,
-                            activity = this@MainActivity,
                             modalSheetState = modalSheetState,
                             fcmNoticeIdList = fcmNoticeId
                         )
@@ -287,7 +285,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun openFile(context: Context, file: File) {
+    private fun openFile(context: Context, file: File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope) {
         if (file.exists()) {
             var attachmentUri = FileProvider.getUriForFile(
                 this,
@@ -313,16 +311,17 @@ class MainActivity : ComponentActivity() {
             } catch (e: ActivityNotFoundException) {
                 Toast.makeText(context, "No app to open this file", Toast.LENGTH_SHORT).show()
             }
+        } else {
+            downloadAndOpenPdfNotification(fileName, context, pdfUrl, notificationId, scope, file)
         }
     }
-
-    private fun shareFile(fileName: String, file: File, fileExistance: Boolean) {
-        val attachmentUri = FileProvider.getUriForFile(
-            this,
-            this.application.packageName +".provider",
-            file
-        )
+    private fun shareFile(file: File, fileName: String, context: Context, pdfUrl: String?, notificationId: Int, scope: CoroutineScope) {
         if (file.exists()) {
+            val attachmentUri = FileProvider.getUriForFile(
+                this,
+                this.application.packageName +".provider",
+                file
+            )
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "application/pdf"
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -331,7 +330,8 @@ class MainActivity : ComponentActivity() {
             intent.putExtra(Intent.EXTRA_STREAM, attachmentUri)
             this.startActivity(Intent.createChooser(intent, "Share File"))
         } else {
-            Toast.makeText(this, "First Download the file", Toast.LENGTH_SHORT).show()
+            Log.i("MainActivity", "File Not Downloaded, Initiating download first")
+            downloadAndSharePdfNotification(fileName, context, pdfUrl, notificationId, scope, file)
         }
     }
     private fun requestNotificationPermission() {
@@ -364,25 +364,77 @@ class MainActivity : ComponentActivity() {
         }
 }
 
-
-
-fun downloadPdfNotification(
+fun downloadAndSharePdfNotification(
     title: String,
     context: Context,
     pdfUrl: String?,
     notificationId: Int,
     scope: CoroutineScope,
-    activity: ComponentActivity?,
+    file: File,
 ) {
-    Log.i("DPN", pdfUrl.toString())
-//    val pdfUrl = "https://github.com/labmember003/usar_data/raw/master/YEAR_1/Sem1/EngineeringMechanics/paper/MinorExam.pdf" // TODO: Remove This Line
     if (pdfUrl == null) {
         Toast.makeText(context, "Invalid URL", Toast.LENGTH_SHORT).show()
         return
     }
+    scope.launch {
+        withContext(Dispatchers.IO) {
+            val notificationManager = NotificationManagerCompat.from(context)
+            createNotificationChannel(context)
+            try {
+                val client = OkHttpClient()
+                val request = Request.Builder().url(pdfUrl).build()
+                val response = client.newCall(request).execute()
+                if (response.isSuccessful) {
+                    response.body.let { body ->
+                        val inputStream = body.byteStream()
+                        val pdfBuffer = inputStream.readBytes()
+                        savePdfBuffer(context, title, pdfBuffer)
+                        notificationManager.cancel(notificationId)
+                        // Share Code
+                        val attachmentUri = FileProvider.getUriForFile(
+                            context,
+                            context.packageName +".provider",
+                            file
+                        )
+                        val intent = Intent(Intent.ACTION_SEND)
+                        intent.type = "application/pdf"
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                        intent.putExtra(Intent.EXTRA_STREAM, attachmentUri)
+                        context.startActivity(Intent.createChooser(intent, "Share File"))
+                        // Share Code Ends
+                    }
+                } else {
+                    Toast.makeText(context, "1:"+response.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
+                    notificationManager.cancel(notificationId)
+                }
+            } catch (e: Exception) {
+                Log.e("DPN - 1", e.toString())
+                e.printStackTrace()
+                notificationManager.cancel(notificationId)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+}
 
-
-
+fun downloadAndOpenPdfNotification(
+    title: String,
+    context: Context,
+    pdfUrl: String?,
+    notificationId: Int,
+    scope: CoroutineScope,
+    file: File,
+) {
+    Log.i("DPN", pdfUrl.toString())
+    if (pdfUrl == null) {
+        Toast.makeText(context, "Invalid URL", Toast.LENGTH_SHORT).show()
+        return
+    }
     scope.launch {
         withContext(Dispatchers.IO) {
             val notificationManager = NotificationManagerCompat.from(context)
@@ -399,10 +451,37 @@ fun downloadPdfNotification(
                         val pdfBuffer = inputStream.readBytes()
                         savePdfBuffer(context, title, pdfBuffer)
                         notificationManager.cancel(notificationId)
+                        // File Open Code
+                        if (file.exists()) {
+                            var attachmentUri = FileProvider.getUriForFile(
+                                context,
+                                context.packageName +".provider",
+                                file
+                            )
+                            if (ContentResolver.SCHEME_FILE == attachmentUri.scheme) { // Checks if attachmentUri is file URI or content URI
+                                // We need to give content URI to Intent always, because:
+                                // Direct access to file URIs is restricted in modern Android versions due to security reasons. Apps are encouraged to use content URIs instead.
+                                Log.i("3.5- openDownloadedAttachment1, attachmentUri:", attachmentUri.toString())
+                                val file = File(attachmentUri.path)
+                                attachmentUri =
+                                    FileProvider.getUriForFile(context, context.packageName +".provider", file)
+                            }
+                            Log.i("4- openDownloadedAttachment1, attachmentUri:", attachmentUri?.toString() ?: "null")
+                            val openAttachmentIntent = Intent(Intent.ACTION_VIEW)
+                            openAttachmentIntent.setDataAndType(attachmentUri, "application/pdf")
+                            openAttachmentIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            openAttachmentIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            openAttachmentIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                            try {
+                                context.startActivity(openAttachmentIntent)
+                            } catch (e: ActivityNotFoundException) {
+                                Toast.makeText(context, "No app to open this file", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        // Open File Code Ends
                     }
                 } else {
                     Toast.makeText(context, "1:"+response.message, Toast.LENGTH_SHORT).show()
-                    Toast.makeText(context, "2:"+response.toString(), Toast.LENGTH_SHORT).show()
                     Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
                     notificationManager.cancel(notificationId)
                 }
