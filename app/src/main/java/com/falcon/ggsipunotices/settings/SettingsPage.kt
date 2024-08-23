@@ -99,10 +99,10 @@ fun SettingsScreen(
             RegularPreference("Contact Us", "", {sendMail("Regarding App ")})
             PreferenceCategory("Developer")
             RegularPreference("Bug Report", "",{sendMail("Bug Report For ")})
-            RegularPreference("Resources Used", "",{openLink("https://sites.google.com/view/falcon-summarizer/resources-used")})
+            RegularPreference("Resources Used", "",{openLink("https://sites.google.com/view/ggsipu-notices/resources-used")})
             RegularPreference("Open Source Libraries", "",{openOssLicensesMenuActivity()})
-            RegularPreference("Terms And Conditions", "",{openLink("https://sites.google.com/view/falcon-summarizer/terms-conditions")})
-            RegularPreference("Privacy Policy", "",{openLink("https://sites.google.com/view/falcon-summarizer/home")})
+            RegularPreference("Terms And Conditions", "",{openLink("https://sites.google.com/view/ggsipu-notices/terms-conditions")})
+            RegularPreference("Privacy Policy", "",{openLink("https://sites.google.com/view/ggsipu-notices/home")})
         }
     }
 }
