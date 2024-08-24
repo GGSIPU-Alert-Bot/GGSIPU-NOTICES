@@ -20,15 +20,16 @@ import com.falcon.ggsipunotices.ui.NoticeItem
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
 import java.util.Random
-
+import androidx.compose.material3.SnackbarHostState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuperNoticeItem(
     notice: Notice,
     modifier: Modifier = Modifier,
-    openFile: (Context, File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope) -> Unit,
-    shareFile: (File, String, Context, String?, Int, CoroutineScope) -> Unit,
-    newNotices: List<Notice>
+    openFile: (Context, File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope, snackbarHostState: SnackbarHostState) -> Unit,
+    shareFile: (File, String, Context, String?, Int, CoroutineScope, snackbarHostState: SnackbarHostState) -> Unit,
+    newNotices: List<Notice>,
+    snackbarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current
     val currentItem by rememberUpdatedState(notice)
@@ -44,12 +45,12 @@ fun SuperNoticeItem(
                 StartToEnd -> {
                     // CurrentItem // Share
                     // StartToEnd Swiped
-                    shareFile(file, fileTitle, context, notice.url, Random().nextInt(), scope)
+                    shareFile(file, fileTitle, context, notice.url, Random().nextInt(), scope, snackbarHostState)
                 }
                 EndToStart -> {
                     // CurrentItem // Download
                     // EndToStart Swiped
-                    openFile(context, file, fileTitle, notice.url, Random().nextInt(), scope)
+                    openFile(context, file, fileTitle, notice.url, Random().nextInt(), scope, snackbarHostState)
                 }
                 Settled -> return@rememberSwipeToDismissBoxState false
             }

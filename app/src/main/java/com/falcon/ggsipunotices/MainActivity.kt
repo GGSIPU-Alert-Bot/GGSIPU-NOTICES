@@ -2,7 +2,6 @@ package com.falcon.ggsipunotices
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ActivityNotFoundException
@@ -10,7 +9,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -41,6 +39,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,12 +54,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.content.getSystemService
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -78,13 +74,15 @@ import com.google.accompanist.web.rememberWebViewState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
+
+
+import androidx.compose.material3.SnackbarHostState
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -304,7 +302,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun openFile(context: Context, file: File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope) {
+    private fun openFile(context: Context, file: File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope, snackbarHostState: SnackbarHostState) {
         if (file.exists()) {
             var attachmentUri = FileProvider.getUriForFile(
                 this,
@@ -331,10 +329,10 @@ class MainActivity : ComponentActivity() {
                 Toast.makeText(context, "No app to open this file", Toast.LENGTH_SHORT).show()
             }
         } else {
-            downloadAndOpenPdfNotification(fileName, context, pdfUrl, notificationId, scope, file)
+            downloadAndOpenPdfNotification(fileName, context, pdfUrl, notificationId, scope, file, snackbarHostState)
         }
     }
-    private fun shareFile(file: File, fileName: String, context: Context, pdfUrl: String?, notificationId: Int, scope: CoroutineScope) {
+    private fun shareFile(file: File, fileName: String, context: Context, pdfUrl: String?, notificationId: Int, scope: CoroutineScope, snackbarHostState: SnackbarHostState) {
         if (file.exists()) {
             val attachmentUri = FileProvider.getUriForFile(
                 this,
@@ -350,7 +348,7 @@ class MainActivity : ComponentActivity() {
             this.startActivity(Intent.createChooser(intent, "Share File"))
         } else {
             Log.i("MainActivity", "File Not Downloaded, Initiating download first")
-            downloadAndSharePdfNotification(fileName, context, pdfUrl, notificationId, scope, file)
+            downloadAndSharePdfNotification(fileName, context, pdfUrl, notificationId, scope, file, snackbarHostState)
         }
     }
     private fun requestNotificationPermission() {
@@ -390,6 +388,7 @@ fun downloadAndSharePdfNotification(
     notificationId: Int,
     scope: CoroutineScope,
     file: File,
+    snackbarHostState: SnackbarHostState
 ) {
     if (pdfUrl == null) {
         Toast.makeText(context, "Invalid URL", Toast.LENGTH_SHORT).show()
@@ -405,10 +404,18 @@ fun downloadAndSharePdfNotification(
                 val response = client.newCall(request).execute()
                 if (response.isSuccessful) {
                     response.body.let { body ->
+                        val snackBarCoroutineJob = CoroutineScope(Dispatchers.Main).launch {
+                            snackbarHostState.showSnackbar(
+                                "Downloading, Please Wait....",
+                                duration = SnackbarDuration.Indefinite,
+                                withDismissAction = false
+                            )
+                        }
                         val inputStream = body.byteStream()
                         val pdfBuffer = inputStream.readBytes()
                         savePdfBuffer(context, title, pdfBuffer)
                         notificationManager.cancel(notificationId)
+                        snackBarCoroutineJob.cancel()
                         // Share Code
                         val attachmentUri = FileProvider.getUriForFile(
                             context,
@@ -448,6 +455,7 @@ fun downloadAndOpenPdfNotification(
     notificationId: Int,
     scope: CoroutineScope,
     file: File,
+    snackbarHostState: SnackbarHostState,
 ) {
     Log.i("DPN", pdfUrl.toString())
     if (pdfUrl == null) {
@@ -466,10 +474,18 @@ fun downloadAndOpenPdfNotification(
 
                 if (response.isSuccessful) {
                     response.body.let { body ->
+                        val snackBarCoroutineJob = CoroutineScope(Dispatchers.Main).launch {
+                            snackbarHostState.showSnackbar(
+                                "Downloading, Please Wait....",
+                                duration = SnackbarDuration.Indefinite,
+                                withDismissAction = false
+                            )
+                        }
                         val inputStream = body.byteStream()
                         val pdfBuffer = inputStream.readBytes()
                         savePdfBuffer(context, title, pdfBuffer)
                         notificationManager.cancel(notificationId)
+                        snackBarCoroutineJob.cancel()
                         // File Open Code
                         if (file.exists()) {
                             var attachmentUri = FileProvider.getUriForFile(

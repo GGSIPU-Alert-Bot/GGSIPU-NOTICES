@@ -1,5 +1,6 @@
 package com.falcon.ggsipunotices.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -28,6 +29,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -59,12 +61,30 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 
+import android.content.Intent
+import android.widget.Toast
+import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Text
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
+import androidx.core.app.NotificationManagerCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.FileOutputStream
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NoticeListScreen(
-    openFile: (Context, File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope) -> Unit,
-    shareFile: (File, String, Context, String?, Int, CoroutineScope) -> Unit,
+    openFile: (Context, File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope, snackbarHostState: SnackbarHostState) -> Unit,
+    shareFile: (File, String, Context, String?, Int, CoroutineScope, snackbarHostState: SnackbarHostState) -> Unit,
     modalSheetState: ModalBottomSheetState,
     fcmNoticeIdList: ArrayList<String>?,
     navController: NavHostController
@@ -79,73 +99,81 @@ fun NoticeListScreen(
     val editor = sharedPreferences.edit()
     editor.putBoolean(Utils.NEWUSER, false)
     editor.apply()
-    Column {
-        MainScreenHeader(scope, modalSheetState, navController)
-        var searchQuery by remember { mutableStateOf("") }
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Search") },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black,
-                unfocusedBorderColor = Color.Black,
-                focusedLabelColor = Color.Black,
-                cursorColor = Color.Black
-            ),
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-        val pullRefreshState = rememberPullRefreshState(
-            refreshing = noticesState is Resource.Loading,
-            onRefresh = {
-                mainViewModel.fetchNotices()
-            }
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pullRefresh(pullRefreshState)
-        ) {
-            Log.i("NoticeListScreen", "Before Entering When Statement, Class Name:" + noticesState.javaClass.simpleName)
-            when (noticesState) {
-                is Resource.Loading -> {
-                    ShimmerEffect()
+    val snackbarHostState = remember { SnackbarHostState() }
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
+    ) { _ ->
+        Column {
+            MainScreenHeader(scope, modalSheetState, navController)
+            var searchQuery by remember { mutableStateOf("") }
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Search") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Black,
+                    focusedLabelColor = Color.Black,
+                    cursorColor = Color.Black
+                ),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+            val pullRefreshState = rememberPullRefreshState(
+                refreshing = noticesState is Resource.Loading,
+                onRefresh = {
+                    mainViewModel.fetchNotices()
                 }
-                is Resource.Success -> {
-                    Log.i("NoticeListScreen", "Inside Resource.Success Block, Class Name:" + noticesState.javaClass.simpleName)
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        val filteredNotices = (noticesState as Resource.Success<List<Notice>>).data.filter {
-                            it.title?.contains(searchQuery, true) ?: false
-                        }
-                        val newNotices = filteredNotices.filter {
-                            fcmNoticeIdList?.contains(it.id.toString()) == true
-                        }
-                        items(filteredNotices) { notice ->
-                            SuperNoticeItem(
-                                notice = notice,
-                                openFile = openFile,
-                                shareFile = shareFile,
-                                newNotices = newNotices
-                            )
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pullRefresh(pullRefreshState)
+            ) {
+                Log.i("NoticeListScreen", "Before Entering When Statement, Class Name:" + noticesState.javaClass.simpleName)
+                when (noticesState) {
+                    is Resource.Loading -> {
+                        ShimmerEffect()
+                    }
+                    is Resource.Success -> {
+                        Log.i("NoticeListScreen", "Inside Resource.Success Block, Class Name:" + noticesState.javaClass.simpleName)
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            val filteredNotices = (noticesState as Resource.Success<List<Notice>>).data.filter {
+                                it.title?.contains(searchQuery, true) ?: false
+                            }
+                            val newNotices = filteredNotices.filter {
+                                fcmNoticeIdList?.contains(it.id.toString()) == true
+                            }
+                            items(filteredNotices) { notice ->
+                                SuperNoticeItem(
+                                    notice = notice,
+                                    openFile = openFile,
+                                    shareFile = shareFile,
+                                    newNotices = newNotices,
+                                    snackbarHostState = snackbarHostState
+                                )
+                            }
                         }
                     }
+                    is Resource.Error -> {
+                        Text(
+                            text = (noticesState as Resource.Error).message,
+                            color = Color.Red,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
                 }
-                is Resource.Error -> {
-                    Text(
-                        text = (noticesState as Resource.Error).message,
-                        color = Color.Red,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+                PullRefreshIndicator(
+                    refreshing = noticesState is Resource.Loading,
+                    state = pullRefreshState,
+                    modifier = Modifier.align(Alignment.TopCenter)
+                )
             }
-            PullRefreshIndicator(
-                refreshing = noticesState is Resource.Loading,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
         }
     }
 }
