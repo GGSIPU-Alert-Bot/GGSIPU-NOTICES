@@ -64,6 +64,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.falcon.ggsipunotices.settings.SettingsScreen
 import com.falcon.ggsipunotices.ui.NoticeListScreen
 import com.google.accompanist.web.WebView
@@ -676,4 +679,15 @@ fun WebViewScreen() {
             modifier = Modifier.fillMaxSize()
         )
     }
+}
+
+@Composable
+fun LottieAnimation(animationID: Int) {
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(animationID))
+    com.airbnb.lottie.compose.LottieAnimation(
+        composition = composition,
+        iterations = LottieConstants.IterateForever,
+        modifier = Modifier
+            .size(400.dp)
+    )
 }
