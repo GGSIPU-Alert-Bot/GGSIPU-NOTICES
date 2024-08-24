@@ -17,6 +17,7 @@ import android.util.Log
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -166,12 +167,30 @@ class MainActivity : ComponentActivity() {
             val startDestination = if (isNewUser) "welcome_page" else "main_screen"
             NavHost(navController = navController, startDestination = startDestination) {
                 composable("welcome_page") {
+                    BackHandler(
+                        onBack = {
+                            finish()
+                        }
+                    )
                     WelcomePag(navController)
                 }
                 composable("how_to_use_page") {
+                    BackHandler(
+                        onBack = {
+                            navController.navigate("welcome_page")
+                        }
+                    )
+                    HowToUseAppPage(navController)
+                }
+                composable("how_to_use_question_mark_page") {
                     HowToUseAppPage(navController)
                 }
                 composable("main_screen") {
+                    BackHandler(
+                        onBack = {
+                            finish()
+                        }
+                    )
                     ModalBottomSheetLayout(
                         sheetState = modalSheetState,
                         sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
@@ -390,6 +409,13 @@ fun downloadAndSharePdfNotification(
     file: File,
     snackbarHostState: SnackbarHostState
 ) {
+    val snackBarCoroutineJob = CoroutineScope(Dispatchers.Main).launch {
+        snackbarHostState.showSnackbar(
+            "Downloading, Please Wait....",
+            duration = SnackbarDuration.Indefinite,
+            withDismissAction = false
+        )
+    }
     if (pdfUrl == null) {
         Toast.makeText(context, "Invalid URL", Toast.LENGTH_SHORT).show()
         return
@@ -404,13 +430,6 @@ fun downloadAndSharePdfNotification(
                 val response = client.newCall(request).execute()
                 if (response.isSuccessful) {
                     response.body.let { body ->
-                        val snackBarCoroutineJob = CoroutineScope(Dispatchers.Main).launch {
-                            snackbarHostState.showSnackbar(
-                                "Downloading, Please Wait....",
-                                duration = SnackbarDuration.Indefinite,
-                                withDismissAction = false
-                            )
-                        }
                         val inputStream = body.byteStream()
                         val pdfBuffer = inputStream.readBytes()
                         savePdfBuffer(context, title, pdfBuffer)
@@ -435,11 +454,13 @@ fun downloadAndSharePdfNotification(
                     Toast.makeText(context, "1:"+response.message, Toast.LENGTH_SHORT).show()
                     Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
                     notificationManager.cancel(notificationId)
+                    snackBarCoroutineJob.cancel()
                 }
             } catch (e: Exception) {
                 Log.e("DPN - 1", e.toString())
                 e.printStackTrace()
                 notificationManager.cancel(notificationId)
+                snackBarCoroutineJob.cancel()
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
                 }
@@ -462,6 +483,13 @@ fun downloadAndOpenPdfNotification(
         Toast.makeText(context, "Invalid URL", Toast.LENGTH_SHORT).show()
         return
     }
+    val snackBarCoroutineJob = CoroutineScope(Dispatchers.Main).launch {
+        snackbarHostState.showSnackbar(
+            "Downloading, Please Wait....",
+            duration = SnackbarDuration.Indefinite,
+            withDismissAction = false
+        )
+    }
     scope.launch {
         withContext(Dispatchers.IO) {
             val notificationManager = NotificationManagerCompat.from(context)
@@ -474,13 +502,6 @@ fun downloadAndOpenPdfNotification(
 
                 if (response.isSuccessful) {
                     response.body.let { body ->
-                        val snackBarCoroutineJob = CoroutineScope(Dispatchers.Main).launch {
-                            snackbarHostState.showSnackbar(
-                                "Downloading, Please Wait....",
-                                duration = SnackbarDuration.Indefinite,
-                                withDismissAction = false
-                            )
-                        }
                         val inputStream = body.byteStream()
                         val pdfBuffer = inputStream.readBytes()
                         savePdfBuffer(context, title, pdfBuffer)
@@ -519,11 +540,13 @@ fun downloadAndOpenPdfNotification(
                     Toast.makeText(context, "1:"+response.message, Toast.LENGTH_SHORT).show()
                     Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
                     notificationManager.cancel(notificationId)
+                    snackBarCoroutineJob.cancel()
                 }
             } catch (e: Exception) {
                 Log.e("DPN - 1", e.toString())
                 e.printStackTrace()
                 notificationManager.cancel(notificationId)
+                snackBarCoroutineJob.cancel()
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
                 }

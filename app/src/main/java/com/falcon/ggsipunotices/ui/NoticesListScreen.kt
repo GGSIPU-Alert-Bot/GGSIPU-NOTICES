@@ -29,6 +29,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,24 +62,6 @@ import com.google.accompanist.placeholder.material.shimmer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
-
-import android.content.Intent
-import android.widget.Toast
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Text
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.FileProvider
-import androidx.core.app.NotificationManagerCompat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.io.FileOutputStream
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class)
@@ -229,7 +213,7 @@ private fun MainScreenHeader(
                 .padding(0.dp, 0.dp, 3.dp, 0.dp)
                 .clickable {
                     scope.launch {
-                        navController.navigate("how_to_use_page")
+                        navController.navigate("how_to_use_question_mark_page")
                     }
                 }
         )
