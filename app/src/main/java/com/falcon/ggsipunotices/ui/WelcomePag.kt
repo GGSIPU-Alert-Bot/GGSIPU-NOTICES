@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,17 +22,15 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.falcon.ggsipunotices.LottieAnimation
 import com.falcon.ggsipunotices.R
+import kotlinx.coroutines.launch
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun WelcomePage(
-//    onClick: () -> Unit
-) {
+fun WelcomePag(navController: NavHostController) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,15 +61,18 @@ fun WelcomePage(
                 .align(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.padding(40.dp))
-        FabHowToUsePage()
+        FabWelcomePage(navController)
     }
 }
 
 @Composable
-private fun FabHowToUsePage() {
+private fun FabWelcomePage(navController: NavHostController) {
+    val scope = rememberCoroutineScope()
     FloatingActionButton(
         onClick = {
-            // TODO: Handle the click event
+            scope.launch {
+                navController.navigate("how_to_use_page")
+            }
         },
         backgroundColor = Color.Black,
         contentColor = Color.White,

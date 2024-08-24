@@ -51,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,7 +69,10 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.falcon.ggsipunotices.settings.SettingsScreen
+import com.falcon.ggsipunotices.ui.HowToUseAppPage
 import com.falcon.ggsipunotices.ui.NoticeListScreen
+import com.falcon.ggsipunotices.ui.WelcomePag
+import com.falcon.ggsipunotices.utils.Utils
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
 import dagger.hilt.android.AndroidEntryPoint
@@ -156,8 +160,19 @@ class MainActivity : ComponentActivity() {
             )
 
             val fcmNoticeId = intent.getStringArrayListExtra("noticeIds")
-
-            NavHost(navController = navController, startDestination = "main_screen") {
+            val context = LocalContext.current
+            val sharedPreferences = remember {
+                context.getSharedPreferences("token_prefs", Context.MODE_PRIVATE)
+            }
+            val isNewUser = sharedPreferences.getBoolean(Utils.NEWUSER, true)
+            val startDestination = if (isNewUser) "welcome_page" else "main_screen"
+            NavHost(navController = navController, startDestination = startDestination) {
+                composable("welcome_page") {
+                    WelcomePag(navController)
+                }
+                composable("how_to_use_page") {
+                    HowToUseAppPage(navController)
+                }
                 composable("main_screen") {
                     ModalBottomSheetLayout(
                         sheetState = modalSheetState,
@@ -170,7 +185,8 @@ class MainActivity : ComponentActivity() {
                             openFile = ::openFile,
                             shareFile = ::shareFile,
                             modalSheetState = modalSheetState,
-                            fcmNoticeIdList = fcmNoticeId
+                            fcmNoticeIdList = fcmNoticeId,
+                            navController = navController
                         )
                     }
                 }

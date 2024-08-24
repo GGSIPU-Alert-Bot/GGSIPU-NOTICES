@@ -35,12 +35,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.falcon.ggsipunotices.R
+import kotlinx.coroutines.launch
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun HowToUseAppPage() {
-    val scope = rememberCoroutineScope()
+fun HowToUseAppPage(navController: NavHostController) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -54,7 +54,7 @@ private fun HowToUseAppPage() {
         Spacer(modifier = Modifier.height(10.dp))
         SwipeRightToShare()
         Spacer(modifier = Modifier.height(30.dp))
-        FabHowToUsePage()
+        FabHowToUsePage(navController)
     }
 
 }
@@ -94,10 +94,13 @@ fun HeadingSummarizedPage() {
 }
 
 @Composable
-private fun FabHowToUsePage() {
+private fun FabHowToUsePage(navController: NavHostController) {
+    val scope = rememberCoroutineScope()
     FloatingActionButton(
         onClick = {
-            // TODO: Handle the click event
+            scope.launch {
+                navController.navigate("main_screen")
+            }
         },
         backgroundColor = Color.Black,
         contentColor = Color.White,

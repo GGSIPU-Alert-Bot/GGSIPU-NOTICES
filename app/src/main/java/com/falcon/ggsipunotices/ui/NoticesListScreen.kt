@@ -2,7 +2,6 @@ package com.falcon.ggsipunotices.ui
 
 import android.content.Context
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +20,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -39,23 +39,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.falcon.ggsipunotices.R
 import com.falcon.ggsipunotices.SuperNoticeItem
 import com.falcon.ggsipunotices.model.Notice
 import com.falcon.ggsipunotices.utils.Resource
+import com.falcon.ggsipunotices.utils.Utils
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.placeholder.material.shimmer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.ArrayList
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -64,13 +66,21 @@ fun NoticeListScreen(
     openFile: (Context, File, fileName: String, pdfUrl: String?, notificationId: Int, scope: CoroutineScope) -> Unit,
     shareFile: (File, String, Context, String?, Int, CoroutineScope) -> Unit,
     modalSheetState: ModalBottomSheetState,
-    fcmNoticeIdList: ArrayList<String>?
+    fcmNoticeIdList: ArrayList<String>?,
+    navController: NavHostController
 ) {
     val scope = rememberCoroutineScope()
     val mainViewModel: MainViewModel = hiltViewModel()
     val noticesState by mainViewModel.notices.collectAsState()
+    val context = LocalContext.current
+    val sharedPreferences = remember {
+        context.getSharedPreferences("token_prefs", Context.MODE_PRIVATE)
+    }
+    val editor = sharedPreferences.edit()
+    editor.putBoolean(Utils.NEWUSER, false)
+    editor.apply()
     Column {
-        MainScreenHeader(scope, modalSheetState)
+        MainScreenHeader(scope, modalSheetState, navController)
         var searchQuery by remember { mutableStateOf("") }
         OutlinedTextField(
             value = searchQuery,
@@ -165,6 +175,7 @@ fun ShimmerEffect() {
 private fun MainScreenHeader(
     scope: CoroutineScope,
     modalSheetState: ModalBottomSheetState,
+    navController: NavHostController
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -179,7 +190,20 @@ private fun MainScreenHeader(
             fontFamily = FontFamily(Font(R.font.nunito_bold_1)),
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.SemiBold
-            )
+            ),
+            modifier = Modifier.weight(1f)
+        )
+        Image(
+            imageVector = Icons.Default.QuestionMark,
+            contentDescription = "Menu Icon",
+            modifier = Modifier
+                .size(24.dp)
+                .padding(0.dp, 0.dp, 3.dp, 0.dp)
+                .clickable {
+                    scope.launch {
+                        navController.navigate("how_to_use_page")
+                    }
+                }
         )
         Image(
             imageVector = Icons.Default.MoreVert,
