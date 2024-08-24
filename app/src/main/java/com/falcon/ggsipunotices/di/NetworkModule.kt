@@ -6,8 +6,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -15,6 +17,12 @@ import javax.inject.Singleton
 object NetworkModule {
     private const val NOTICES_BASE_URL = "https://notice-scrap-server.azurewebsites.net"
     private const val FCM_BASE_URL = "https://fcm-server-1.onrender.com/"
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS) // Increase connection timeout
+        .readTimeout(30, TimeUnit.SECONDS)    // Increase read timeout
+        .writeTimeout(30, TimeUnit.SECONDS)   // Increase write timeout
+        .build()
 
     private val fcmRetrofit =
         Retrofit.Builder()
@@ -25,8 +33,10 @@ object NetworkModule {
     private val noticesRetrofit =
         Retrofit.Builder()
             .baseUrl(NOTICES_BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+
 
     @Provides
     @Singleton
