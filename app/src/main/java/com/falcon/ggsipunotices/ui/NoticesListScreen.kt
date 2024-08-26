@@ -117,7 +117,7 @@ fun NoticeListScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pullRefresh(pullRefreshState)
+//                    .pullRefresh(pullRefreshState) // TODO: Removed Refresh feature because it's crashing
             ) {
                 Log.i("NoticeListScreen", "Before Entering When Statement, Class Name:" + noticesState.javaClass.simpleName)
                 when (noticesState) {
