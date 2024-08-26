@@ -115,4 +115,6 @@ dependencies {
 
     // Web view
     implementation (libs.accompanist.webview)
+    // Billing
+    implementation (libs.billing)
 }
